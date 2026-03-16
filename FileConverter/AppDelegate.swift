@@ -15,9 +15,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem?.button?.image = NSImage(systemSymbolName: "arrow.triangle.2.circlepath", accessibilityDescription: "File Converter")
 
         let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "Convert File...", action: #selector(convertFile), keyEquivalent: ""))
-        menu.addItem(NSMenuItem(title: "Preferences", action: #selector(openPreferences), keyEquivalent: ","))
-        menu.addItem(NSMenuItem(title: "Check Dependencies", action: #selector(checkDependencies), keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: "Settings", action: #selector(openPreferences), keyEquivalent: ","))
+        menu.addItem(NSMenuItem(title: "Tutorial", action: #selector(openTutorial), keyEquivalent: ""))
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
 
@@ -26,12 +25,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openPreferences() {
+        showWindow(tabIndex: 0)
+    }
+
+    @objc private func openTutorial() {
+        showWindow(tabIndex: 1)
+    }
+
+    private func showWindow(tabIndex: Int) {
         if preferencesWindowController == nil {
             let view = PreferencesView()
             let hosting = NSHostingController(rootView: view)
             let window = NSWindow(contentViewController: hosting)
             window.title = "Preferences"
-            window.setContentSize(NSSize(width: 520, height: 360))
+            window.setContentSize(NSSize(width: 450, height: 350))
             window.styleMask = NSWindow.StyleMask([.titled, .closable, .miniaturizable])
             preferencesWindowController = NSWindowController(window: window)
         }

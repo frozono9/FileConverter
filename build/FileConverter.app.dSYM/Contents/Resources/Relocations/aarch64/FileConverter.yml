@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/alexlatorre/Downloads/FileConverter/build/FileConverter.app/Contents/MacOS/FileConverter'
+relocations:     []
+...
