@@ -1,0 +1,16 @@
+{
+  "" : {
+    "const-values" : "/Users/alexlatorre/Downloads/FileConverter/.build/Build/Intermediates.noindex/FileConverter.build/Release/convert.io.build/Objects-normal/arm64/convert.io-primary.swiftconstvalues",
+    "dependencies" : "/Users/alexlatorre/Downloads/FileConverter/.build/Build/Intermediates.noindex/FileConverter.build/Release/convert.io.build/Objects-normal/arm64/convert.io-primary.d",
+    "diagnostics" : "/Users/alexlatorre/Downloads/FileConverter/.build/Build/Intermediates.noindex/FileConverter.build/Release/convert.io.build/Objects-normal/arm64/convert.io-primary.dia",
+    "emit-module-dependencies" : "/Users/alexlatorre/Downloads/FileConverter/.build/Build/Intermediates.noindex/FileConverter.build/Release/convert.io.build/Objects-normal/arm64/convert.io-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/alexlatorre/Downloads/FileConverter/.build/Build/Intermediates.noindex/FileConverter.build/Release/convert.io.build/Objects-normal/arm64/convert.io-primary-emit-module.dia",
+    "pch" : "/Users/alexlatorre/Downloads/FileConverter/.build/Build/Intermediates.noindex/FileConverter.build/Release/convert.io.build/Objects-normal/arm64/convert.io-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/alexlatorre/Downloads/FileConverter/.build/Build/Intermediates.noindex/FileConverter.build/Release/convert.io.build/Objects-normal/arm64/convert.io-primary.swiftdeps"
+  },
+  "/Users/alexlatorre/Downloads/FileConverter/convert.io/FinderSync.swift" : {
+    "index-unit-output-path" : "/FileConverter.build/Release/convert.io.build/Objects-normal/arm64/FinderSync.o",
+    "llvm-bc" : "/Users/alexlatorre/Downloads/FileConverter/.build/Build/Intermediates.noindex/FileConverter.build/Release/convert.io.build/Objects-normal/arm64/FinderSync.bc",
+    "object" : "/Users/alexlatorre/Downloads/FileConverter/.build/Build/Intermediates.noindex/FileConverter.build/Release/convert.io.build/Objects-normal/arm64/FinderSync.o"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "" : {
+    "const-values" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/FileConverter-primary.swiftconstvalues",
+    "dependencies" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/FileConverter-primary.d",
+    "diagnostics" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/FileConverter-primary.dia",
+    "emit-module-dependencies" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/FileConverter-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/FileConverter-primary-emit-module.dia",
+    "pch" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/FileConverter-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/FileConverter-primary.swiftdeps"
+  },
+  "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "index-unit-output-path" : "/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/GeneratedAssetSymbols.o"
+  },
+  "/Users/alexlatorre/Downloads/FileConverter/FileConverter/AppDelegate.swift" : {
+    "index-unit-output-path" : "/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/AppDelegate.o",
+    "llvm-bc" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/AppDelegate.bc",
+    "object" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/AppDelegate.o"
+  },
+  "/Users/alexlatorre/Downloads/FileConverter/FileConverter/ContentView.swift" : {
+    "index-unit-output-path" : "/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/ContentView.o",
+    "llvm-bc" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/ContentView.bc",
+    "object" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/ContentView.o"
+  },
+  "/Users/alexlatorre/Downloads/FileConverter/FileConverter/ConversionRouter.swift" : {
+    "index-unit-output-path" : "/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/ConversionRouter.o",
+    "llvm-bc" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/ConversionRouter.bc",
+    "object" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/ConversionRouter.o"
+  },
+  "/Users/alexlatorre/Downloads/FileConverter/FileConverter/DependencyChecker.swift" : {
+    "index-unit-output-path" : "/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/DependencyChecker.o",
+    "llvm-bc" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/DependencyChecker.bc",
+    "object" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/DependencyChecker.o"
+  },
+  "/Users/alexlatorre/Downloads/FileConverter/FileConverter/FileConverterApp.swift" : {
+    "index-unit-output-path" : "/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/FileConverterApp.o",
+    "llvm-bc" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/FileConverterApp.bc",
+    "object" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/FileConverterApp.o"
+  },
+  "/Users/alexlatorre/Downloads/FileConverter/FileConverter/FileType.swift" : {
+    "index-unit-output-path" : "/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/FileType.o",
+    "llvm-bc" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/FileType.bc",
+    "object" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/FileType.o"
+  },
+  "/Users/alexlatorre/Downloads/FileConverter/FileConverter/PreferencesView.swift" : {
+    "index-unit-output-path" : "/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/PreferencesView.o",
+    "llvm-bc" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/PreferencesView.bc",
+    "object" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/PreferencesView.o"
+  },
+  "/Users/alexlatorre/Downloads/FileConverter/FileConverter/Shell.swift" : {
+    "index-unit-output-path" : "/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/Shell.o",
+    "llvm-bc" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/Shell.bc",
+    "object" : "/Users/alexlatorre/Downloads/FileConverter/.build_local/Build/Intermediates.noindex/FileConverter.build/Release/FileConverter.build/Objects-normal/arm64/Shell.o"
+  }
+}

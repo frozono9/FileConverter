@@ -1,0 +1,4 @@
+Target dependency graph (2 targets)
+Target 'FileConverter' in project 'FileConverter'
+➜ Explicit dependency on target 'convert.io' in project 'FileConverter'
+Target 'convert.io' in project 'FileConverter' (no dependencies)

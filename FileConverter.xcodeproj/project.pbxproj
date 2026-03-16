@@ -6,14 +6,65 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		DD0BEAB72F687865005F98DA /* convert.io.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = DD0BEAB02F687865005F98DA /* convert.io.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		DD0BEAB52F687865005F98DA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DD0BE96A2F686D11005F98DA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DD0BEAAF2F687865005F98DA;
+			remoteInfo = convert.io;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		F4C4BD5075A5962AC9BA64B8 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				DD0BEAB72F687865005F98DA /* convert.io.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		AFB14473CC19628D7DF60463 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		DD0BE9722F686D11005F98DA /* FileConverter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FileConverter.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DD0BEAB02F687865005F98DA /* convert.io.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = convert.io.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		DD0BEABA2F687865005F98DA /* Exceptions for "convert.io" folder in "convert.io" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ExtensionConversionRouter.swift,
+				ExtensionFileType.swift,
+				ExtensionShell.swift,
+				Info.plist,
+			);
+			target = DD0BEAAF2F687865005F98DA /* convert.io */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		DD0BE9742F686D11005F98DA /* FileConverter */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = FileConverter;
+			sourceTree = "<group>";
+		};
+		DD0BEAB12F687865005F98DA /* convert.io */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				DD0BEABA2F687865005F98DA /* Exceptions for "convert.io" folder in "convert.io" target */,
+			);
+			path = convert.io;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -26,14 +77,39 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DD0BEAAD2F687865005F98DA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2297CE4F57C7A7FD71B15765 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				AB5114B0A9A88D30C65BBD35 /* OS X */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		AB5114B0A9A88D30C65BBD35 /* OS X */ = {
+			isa = PBXGroup;
+			children = (
+				AFB14473CC19628D7DF60463 /* Cocoa.framework */,
+			);
+			name = "OS X";
+			sourceTree = "<group>";
+		};
 		DD0BE9692F686D11005F98DA = {
 			isa = PBXGroup;
 			children = (
 				DD0BE9742F686D11005F98DA /* FileConverter */,
+				DD0BEAB12F687865005F98DA /* convert.io */,
 				DD0BE9732F686D11005F98DA /* Products */,
+				2297CE4F57C7A7FD71B15765 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -41,6 +117,7 @@
 			isa = PBXGroup;
 			children = (
 				DD0BE9722F686D11005F98DA /* FileConverter.app */,
+				DD0BEAB02F687865005F98DA /* convert.io.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -55,20 +132,42 @@
 				DD0BE96E2F686D11005F98DA /* Sources */,
 				DD0BE96F2F686D11005F98DA /* Frameworks */,
 				DD0BE9702F686D11005F98DA /* Resources */,
+				F4C4BD5075A5962AC9BA64B8 /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DD0BEAB62F687865005F98DA /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				DD0BE9742F686D11005F98DA /* FileConverter */,
+			);
+			name = FileConverter;
+			productName = FileConverter;
+			productReference = DD0BE9722F686D11005F98DA /* FileConverter.app */;
+			productType = "com.apple.product-type.application";
+		};
+		DD0BEAAF2F687865005F98DA /* convert.io */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DD0BEABB2F687865005F98DA /* Build configuration list for PBXNativeTarget "convert.io" */;
+			buildPhases = (
+				DD0BEAAC2F687865005F98DA /* Sources */,
+				DD0BEAAD2F687865005F98DA /* Frameworks */,
+				DD0BEAAE2F687865005F98DA /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				DD0BE9742F686D11005F98DA /* FileConverter */,
+				DD0BEAB12F687865005F98DA /* convert.io */,
 			);
-			name = FileConverter;
+			name = convert.io;
 			packageProductDependencies = (
 			);
-			productName = FileConverter;
-			productReference = DD0BE9722F686D11005F98DA /* FileConverter.app */;
-			productType = "com.apple.product-type.application";
+			productName = convert.io;
+			productReference = DD0BEAB02F687865005F98DA /* convert.io.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -81,6 +180,9 @@
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					DD0BE9712F686D11005F98DA = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+					DD0BEAAF2F687865005F98DA = {
 						CreatedOnToolsVersion = 26.0.1;
 					};
 				};
@@ -100,12 +202,20 @@
 			projectRoot = "";
 			targets = (
 				DD0BE9712F686D11005F98DA /* FileConverter */,
+				DD0BEAAF2F687865005F98DA /* convert.io */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		DD0BE9702F686D11005F98DA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DD0BEAAE2F687865005F98DA /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +232,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DD0BEAAC2F687865005F98DA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		DD0BEAB62F687865005F98DA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DD0BEAAF2F687865005F98DA /* convert.io */;
+			targetProxy = DD0BEAB52F687865005F98DA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		DD0BE97B2F686D13005F98DA /* Debug */ = {
@@ -160,7 +285,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = HGRMG5854A;
+				DEVELOPMENT_TEAM = NGVRJT7269;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -224,7 +349,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = HGRMG5854A;
+				DEVELOPMENT_TEAM = NGVRJT7269;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -250,15 +375,18 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Development: frozono9@gmail.com (NGVRJT7269)";
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = HGRMG5854A;
+				DEVELOPMENT_TEAM = NGVRJT7269;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = NGVRJT7269;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SELECTED_FILES = readonly;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -282,15 +410,18 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Development: frozono9@gmail.com (NGVRJT7269)";
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = HGRMG5854A;
+				DEVELOPMENT_TEAM = NGVRJT7269;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = NGVRJT7269;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SELECTED_FILES = readonly;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -303,6 +434,76 @@
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		DD0BEAB82F687865005F98DA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development: frozono9@gmail.com (NGVRJT7269)";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = NGVRJT7269;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = NGVRJT7269;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				EXECUTABLE_NAME = convert_io;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = convert.io/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = convert.io;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.Latorre.Alex.FileConverter.FinderSync;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		DD0BEAB92F687865005F98DA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development: frozono9@gmail.com (NGVRJT7269)";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = NGVRJT7269;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = NGVRJT7269;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				EXECUTABLE_NAME = convert_io;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = convert.io/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = convert.io;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.Latorre.Alex.FileConverter.FinderSync;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
@@ -326,6 +527,15 @@
 			buildConfigurations = (
 				DD0BE97E2F686D13005F98DA /* Debug */,
 				DD0BE97F2F686D13005F98DA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DD0BEABB2F687865005F98DA /* Build configuration list for PBXNativeTarget "convert.io" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DD0BEAB82F687865005F98DA /* Debug */,
+				DD0BEAB92F687865005F98DA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

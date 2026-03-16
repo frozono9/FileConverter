@@ -1,0 +1,48 @@
+{
+  "source": "/Users/alexlatorre/Downloads/FileConverter/FileConverter/PreferencesView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Dependencies",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 21
+        }
+      },
+      {
+        "comment": "",
+        "key": "Conversion Behavior",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 10
+        }
+      },
+      {
+        "comment": "",
+        "key": "Create a copy (keep original file)",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 13
+        }
+      },
+      {
+        "comment": "",
+        "key": "A converted file is created and the original is kept.",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 14
+        }
+      },
+      {
+        "comment": "",
+        "key": "The converted file replaces the original (no copy kept).",
+        "location": {
+          "startingColumn": 105,
+          "startingLine": 14
+        }
+      }
+    ]
+  },
+  "version": 1
+}
