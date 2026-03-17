@@ -1,4 +1,5 @@
 import Foundation
+import PDFKit
 
 enum ConversionRouterError: LocalizedError {
     case unsupportedFormat
@@ -50,6 +51,9 @@ final class ConversionRouter {
         }
 
         if ["md", "html", "txt", "pdf", "epub", "rtf"].contains(inputExt) {
+            if inputExt == "pdf" && outputExt == "docx" {
+                return try await convertPDFToDocx(inputURL: inputURL, outputURL: outputURL, createCopy: createCopy)
+            }
             let pandoc = DependencyChecker.shared.toolPath("pandoc")
             _ = try await Shell.run([pandoc, inputURL.path, "-o", outputURL.path])
             return try finalizeOutput(inputURL: inputURL, outputURL: outputURL, createCopy: createCopy)
@@ -154,6 +158,26 @@ final class ConversionRouter {
             }
         }
         
+        return try finalizeOutput(inputURL: inputURL, outputURL: outputURL, createCopy: createCopy)
+    }
+
+    private func convertPDFToDocx(inputURL: URL, outputURL: URL, createCopy: Bool) async throws -> URL {
+        guard let pdf = PDFDocument(url: inputURL) else {
+            throw NSError(domain: "FileConverter", code: 26, userInfo: [NSLocalizedDescriptionKey: "Cannot read PDF content for DOCX conversion."])
+        }
+
+        let extracted = (pdf.string ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !extracted.isEmpty else {
+            throw NSError(domain: "FileConverter", code: 27, userInfo: [NSLocalizedDescriptionKey: "PDF appears empty; no text available to convert to DOCX."])
+        }
+
+        let pandoc = DependencyChecker.shared.toolPath("pandoc")
+        let tempMarkdown = inputURL.deletingLastPathComponent().appendingPathComponent("temp_\(UUID().uuidString).md")
+        defer { try? FileManager.default.removeItem(at: tempMarkdown) }
+
+        try extracted.write(to: tempMarkdown, atomically: true, encoding: .utf8)
+        _ = try await Shell.run([pandoc, tempMarkdown.path, "-o", outputURL.path])
+
         return try finalizeOutput(inputURL: inputURL, outputURL: outputURL, createCopy: createCopy)
     }
 

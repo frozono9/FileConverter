@@ -491,7 +491,11 @@ class FinderSync: FIFinderSync {
                 return
             }
             if ["docx"].contains(format) {
-                try convertWithPandoc(inputURL: inputURL, outputURL: outputURL)
+                if inputExt == "pdf" {
+                    try convertPDFToDocx(inputURL: inputURL, outputURL: outputURL)
+                } else {
+                    try convertWithPandoc(inputURL: inputURL, outputURL: outputURL)
+                }
                 return
             }
         }
@@ -554,6 +558,22 @@ class FinderSync: FIFinderSync {
             throw NSError(domain: "FileConverter", code: 20, userInfo: [NSLocalizedDescriptionKey: "Install pandoc: brew install pandoc"])
         }
         try runCommand(executablePath: pandoc, args: [inputURL.path, "-o", outputURL.path])
+    }
+
+    private func convertPDFToDocx(inputURL: URL, outputURL: URL) throws {
+        guard let pdf = PDFDocument(url: inputURL) else {
+            throw NSError(domain: "FileConverter", code: 26, userInfo: [NSLocalizedDescriptionKey: "Cannot read PDF content for DOCX conversion."])
+        }
+
+        let extracted = (pdf.string ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !extracted.isEmpty else {
+            throw NSError(domain: "FileConverter", code: 27, userInfo: [NSLocalizedDescriptionKey: "PDF appears empty; no text available to convert to DOCX."])
+        }
+
+        let tempMarkdown = temporaryURL(fileExtension: "md")
+        defer { try? FileManager.default.removeItem(at: tempMarkdown) }
+        try extracted.write(to: tempMarkdown, atomically: true, encoding: .utf8)
+        try convertWithPandoc(inputURL: tempMarkdown, outputURL: outputURL)
     }
 
     private func convertWithLibreOffice(inputURL: URL, outputURL: URL, toFormat: String) throws {
