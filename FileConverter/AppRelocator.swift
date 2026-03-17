@@ -2,49 +2,35 @@ import Foundation
 import AppKit
 
 struct AppRelocator {
-    static func moveToApplicationsIfNeeded() {
+    static func ensureRunningFromApplications() -> Bool {
         let bundleURL = Bundle.main.bundleURL
+        let bundlePath = bundleURL.path
         let applicationsURLList = FileManager.default.urls(for: .applicationDirectory, in: .localDomainMask)
         
-        guard let applicationsURL = applicationsURLList.first else { return }
+        guard let applicationsURL = applicationsURLList.first else { return true }
         
-        if bundleURL.path.hasPrefix(applicationsURL.path) {
-            return
+        if bundlePath.hasPrefix(applicationsURL.path) {
+            return true
         }
         
-        // Skip if we are currently debugging in DerivedData or Downloads/Source
-        if bundleURL.path.contains("DerivedData") || bundleURL.path.contains("build_release") {
-           return
+        // Allow local development runs from Xcode/derived build products.
+        if bundlePath.contains("DerivedData") ||
+            bundlePath.contains("/Build/Products/Debug/") ||
+            bundlePath.contains("/build/Build/Products/Debug/") ||
+            bundlePath.contains("build_release") {
+           return true
         }
-
-        let appName = bundleURL.lastPathComponent
-        let destinationURL = applicationsURL.appendingPathComponent(appName)
         
         let alert = NSAlert()
-        alert.messageText = "Move to Applications folder?"
-        alert.informativeText = "To ensure the Finder extension works correctly, the app should be in your Applications folder."
-        alert.addButton(withTitle: "Move to Applications")
-        alert.addButton(withTitle: "Stay in Downloads")
-        
+        alert.messageText = "Recommended: move FileConverter to Applications"
+        alert.informativeText = "Finder integration is more reliable from /Applications. You can continue now and move it later."
+        alert.addButton(withTitle: "Open Applications Folder")
+        alert.addButton(withTitle: "Continue Anyway")
+
         if alert.runModal() == .alertFirstButtonReturn {
-            do {
-                if FileManager.default.fileExists(atPath: destinationURL.path) {
-                    try FileManager.default.removeItem(at: destinationURL)
-                }
-                
-                try FileManager.default.copyItem(at: bundleURL, to: destinationURL)
-                
-                // Relaunch the new copy
-                let configuration = NSWorkspace.OpenConfiguration()
-                NSWorkspace.shared.openApplication(at: destinationURL, configuration: configuration) { _, _ in
-                    NSApplication.shared.terminate(nil)
-                }
-            } catch {
-                let errorAlert = NSAlert()
-                errorAlert.messageText = "Could not move app"
-                errorAlert.informativeText = error.localizedDescription
-                errorAlert.runModal()
-            }
+            NSWorkspace.shared.open(applicationsURL)
         }
+
+        return true
     }
 }

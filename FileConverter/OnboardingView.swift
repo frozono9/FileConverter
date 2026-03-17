@@ -1,39 +1,56 @@
 import SwiftUI
+import AppKit
 
 struct OnboardingView: View {
     @State private var currentStep = 0
-    @Binding var isPresented: Bool
-    
+    let onFinish: () -> Void
+
+    private let extensionSettingsURL = URL(string: "x-apple.systempreferences:com.apple.ExtensionsSettings.ExtensionPickerIsUpdating")
+    private let fullDiskAccessURL = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles")
+
     var body: some View {
         VStack(spacing: 20) {
             if currentStep == 0 {
                 StepView(
-                    title: "Welcome to convert.io",
-                    description: "The simplest way to convert files directly from Finder.",
-                    imageName: "arrow.triangle.2.circlepath",
+                    title: "Install in Applications",
+                    description: "If you opened FileConverter from a DMG, drag it manually to Applications first. Finder integration only works correctly from /Applications.",
+                    imageName: "folder.badge.gearshape",
                     buttonTitle: "Continue"
                 ) {
                     withAnimation { currentStep = 1 }
                 }
             } else if currentStep == 1 {
                 StepView(
-                    title: "Enable Extension",
-                    description: "To use the right-click menu, you need to enable the Finder extension in System Settings.",
-                    imageName: "switch.2",
-                    buttonTitle: "Open System Settings"
+                    title: "How It Works",
+                    description: "Right-click a supported file in Finder, choose 'Convert to...', and select the output format you want.",
+                    imageName: "cursorarrow.click",
+                    buttonTitle: "Enable Finder Extension"
                 ) {
-                    NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.ExtensionsSettings.ExtensionPickerIsUpdating")!)
+                    if let extensionSettingsURL {
+                        NSWorkspace.shared.open(extensionSettingsURL)
+                    }
                     withAnimation { currentStep = 2 }
+                }
+            } else if currentStep == 2 {
+                StepView(
+                    title: "Permissions",
+                    description: "Enable the FileConverter extension in System Settings > Privacy & Security > Extensions > Finder. If conversion fails in protected folders, grant Full Disk Access.",
+                    imageName: "lock.shield",
+                    buttonTitle: "Open Privacy Settings"
+                ) {
+                    if let fullDiskAccessURL {
+                        NSWorkspace.shared.open(fullDiskAccessURL)
+                    }
+                    withAnimation { currentStep = 3 }
                 }
             } else {
                 StepView(
-                    title: "You're All Set!",
-                    description: "Right-click any file in Finder and look for 'Convert to...' to start converting.",
-                    imageName: "checkmark.circle.fill",
-                    buttonTitle: "Start Using convert.io"
+                    title: "Apply Changes",
+                    description: "FileConverter will now restart Finder and relaunch itself so the extension state is refreshed.",
+                    imageName: "arrow.clockwise.circle.fill",
+                    buttonTitle: "Restart Finder and App"
                 ) {
-                    UserDefaults.standard.set(true, forKey: "fc.hasSeenOnboarding")
-                    isPresented = false
+                    onFinish()
                 }
             }
         }
@@ -49,26 +66,26 @@ struct StepView: View {
     let imageName: String
     let buttonTitle: String
     let action: () -> Void
-    
+
     var body: some View {
         VStack(spacing: 15) {
             Image(systemName: imageName)
                 .font(.system(size: 60))
                 .foregroundStyle(.blue)
                 .padding(.bottom, 10)
-            
+
             Text(title)
                 .font(.title)
                 .fontWeight(.bold)
-            
+
             Text(description)
                 .font(.body)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
                 .padding(.horizontal)
-            
+
             Spacer()
-            
+
             Button(action: action) {
                 Text(buttonTitle)
                     .fontWeight(.semibold)
@@ -84,7 +101,7 @@ struct StepView: View {
 struct VisualEffectView: NSViewRepresentable {
     let material: NSVisualEffectView.Material
     let blendingMode: NSVisualEffectView.BlendingMode
-    
+
     func makeNSView(context: Context) -> NSVisualEffectView {
         let view = NSVisualEffectView()
         view.material = material
@@ -92,6 +109,6 @@ struct VisualEffectView: NSViewRepresentable {
         view.state = .active
         return view
     }
-    
+
     func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
 }

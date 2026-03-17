@@ -10,6 +10,8 @@ class FinderSync: FIFinderSync {
     private enum BadgeState { case converting, done, failed, clear }
     private let extensionEnabledKey = "fc.extensionEnabled"
     private let sharedSuiteName = "group.me.Latorre.Alex.FileConverter"
+    private let extensionSuiteName = "me.Latorre.Alex.FileConverter.FinderSync"
+    private let hostAppBundleID = "me.Latorre.Alex.FileConverter"
 
     override init() {
         super.init()
@@ -40,9 +42,15 @@ class FinderSync: FIFinderSync {
             return nil
         }
 
-        guard menuKind == .contextualMenuForItems,
-              let selected = FIFinderSyncController.default().selectedItemURLs(),
-              let first = selected.first else {
+        guard menuKind == .contextualMenuForItems else {
+            return nil
+        }
+
+        let selected = FIFinderSyncController.default().selectedItemURLs() ?? []
+        let target = FIFinderSyncController.default().targetedURL()
+
+        guard let first = selected.first ?? target else {
+            writeActionTrace("menu skipped reason=no selected or targeted URL")
             return nil
         }
 
@@ -96,17 +104,12 @@ class FinderSync: FIFinderSync {
         return root
     }
 
-    private func isExtensionEnabled() -> Bool {
-        if let shared = UserDefaults(suiteName: sharedSuiteName)?.object(forKey: extensionEnabledKey) as? Bool {
-            return shared
-        }
-        if let local = UserDefaults.standard.object(forKey: extensionEnabledKey) as? Bool {
-            return local
-        }
-        return true
-    }
-
     @objc func performConversion(_ sender: Any?) {
+        guard isExtensionEnabled() else {
+            writeActionTrace("ignored click: extension disabled")
+            return
+        }
+
         guard let item = sender as? NSMenuItem else {
             logger.error("Action failed: sender is not NSMenuItem")
             writeActionTrace("failure invalid sender type")
@@ -788,5 +791,14 @@ else:
         let global = UserDefaults.standard.persistentDomain(forName: UserDefaults.globalDomain)
         let style = (global?["AppleInterfaceStyle"] as? String)?.lowercased()
         return style == "dark" ? .white : .black
+    }
+
+    private func isExtensionEnabled() -> Bool {
+        // Deterministic behavior: menu/action available only while host app is running.
+        isHostAppRunning()
+    }
+
+    private func isHostAppRunning() -> Bool {
+        !NSRunningApplication.runningApplications(withBundleIdentifier: hostAppBundleID).isEmpty
     }
 }

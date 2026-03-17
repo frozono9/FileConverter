@@ -8,6 +8,8 @@ extension Notification.Name {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let extensionEnabledKey = "fc.extensionEnabled"
     private let hasSeenOnboardingKey = "fc.hasSeenOnboarding"
+    private let onboardingVersionKey = "fc.onboardingVersion"
+    private let currentOnboardingVersion = 2
     private let extensionSuiteName = "me.Latorre.Alex.FileConverter.FinderSync"
     private let sharedSuiteName = "group.me.Latorre.Alex.FileConverter"
     private var statusItem: NSStatusItem?
@@ -15,20 +17,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var onboardingWindowController: NSWindowController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        AppRelocator.moveToApplicationsIfNeeded()
+        // Keep Finder extension enabled even if app exits early (e.g. launched from DMG).
+        setExtensionEnabled(true)
+
+        guard AppRelocator.ensureRunningFromApplications() else {
+            return
+        }
+
+        let launchArgs = ProcessInfo.processInfo.arguments
+        let shouldResetOnboarding = launchArgs.contains("--reset-onboarding")
+        let shouldForceOnboarding = launchArgs.contains("--force-onboarding")
+
+        if shouldResetOnboarding {
+            resetOnboardingState()
+        }
+
         NSApp.setActivationPolicy(.accessory)
         configureStatusItem()
-        setExtensionEnabled(true)
+        refreshFinderExtensionState(enabled: true)
         NotificationCenter.default.addObserver(self, selector: #selector(handleQuitRequestNotification), name: .fileConverterQuitRequested, object: nil)
         
-        if !UserDefaults.standard.bool(forKey: hasSeenOnboardingKey) {
+        let seenLegacyOnboarding = UserDefaults.standard.bool(forKey: hasSeenOnboardingKey)
+        let seenOnboardingVersion = UserDefaults.standard.integer(forKey: onboardingVersionKey)
+        if shouldForceOnboarding || !seenLegacyOnboarding || seenOnboardingVersion < currentOnboardingVersion {
             showOnboarding()
         }
     }
 
     private func showOnboarding() {
         if onboardingWindowController == nil {
-            let view = OnboardingView(isPresented: Binding(get: { true }, set: { [weak self] _ in self?.onboardingWindowController?.close() }))
+            let view = OnboardingView { [weak self] in
+                self?.completeOnboarding()
+            }
             let hosting = NSHostingController(rootView: view)
             let window = NSWindow(contentViewController: hosting)
             window.titleVisibility = .hidden
@@ -40,6 +60,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         NSApp.activate(ignoringOtherApps: true)
         onboardingWindowController?.showWindow(nil)
+    }
+
+    private func completeOnboarding() {
+        UserDefaults.standard.set(true, forKey: hasSeenOnboardingKey)
+        UserDefaults.standard.set(currentOnboardingVersion, forKey: onboardingVersionKey)
+        UserDefaults.standard.synchronize()
+        onboardingWindowController?.close()
+        restartAppAndFinder()
+    }
+
+    private func restartAppAndFinder() {
+        let appURL = Bundle.main.bundleURL
+
+        Task.detached(priority: .userInitiated) {
+            _ = try? await Shell.run(["/usr/bin/killall", "Finder"])
+
+            await MainActor.run {
+                let configuration = NSWorkspace.OpenConfiguration()
+                NSWorkspace.shared.openApplication(at: appURL, configuration: configuration) { _, _ in
+                    NSApplication.shared.terminate(nil)
+                }
+            }
+        }
+    }
+
+    private func refreshFinderExtensionState(enabled: Bool) {
+        let extensionID = extensionSuiteName
+        Task.detached(priority: .utility) {
+            let state = enabled ? "use" : "ignore"
+            _ = try? await Shell.run(["/usr/bin/pluginkit", "-e", state, "-i", extensionID])
+            _ = try? await Shell.run(["/usr/bin/killall", "Finder"])
+        }
     }
 
     deinit {
@@ -65,6 +117,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func showContextMenu() {
         guard let button = statusItem?.button else { return }
         let menu = NSMenu()
+        menu.addItem(NSMenuItem(title: "Show Onboarding", action: #selector(openTutorial), keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: "Reset Onboarding (Testing)", action: #selector(resetOnboardingAndOpen), keyEquivalent: ""))
+        menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q"))
         menu.items.forEach { $0.target = self }
         statusItem?.menu = menu
@@ -74,7 +129,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func quitApp() {
         setExtensionEnabled(false)
-        NSApplication.shared.terminate(nil)
+        Task.detached(priority: .userInitiated) {
+            _ = try? await Shell.run(["/usr/bin/pluginkit", "-e", "ignore", "-i", self.extensionSuiteName])
+            _ = try? await Shell.run(["/usr/bin/killall", "Finder"])
+            await MainActor.run {
+                NSApplication.shared.terminate(nil)
+            }
+        }
     }
 
     @objc private func handleQuitRequestNotification() {
@@ -107,7 +168,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openTutorial() {
-        showWindow()
+        showOnboarding()
+    }
+
+    @objc private func resetOnboardingAndOpen() {
+        resetOnboardingState()
+        showOnboarding()
+    }
+
+    private func resetOnboardingState() {
+        UserDefaults.standard.removeObject(forKey: hasSeenOnboardingKey)
+        UserDefaults.standard.removeObject(forKey: onboardingVersionKey)
+        UserDefaults.standard.synchronize()
     }
 
     private func showWindow() {
