@@ -22,5 +22,10 @@
         <string>/Documents/</string>
         <string>/Downloads/</string>
     </array>
+    <key>com.apple.security.temporary-exception.files.absolute-path.read-only</key>
+    <array>
+        <string>/opt/homebrew/</string>
+        <string>/usr/local/</string>
+    </array>
 </dict>
 </plist>

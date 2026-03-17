@@ -10,7 +10,6 @@ class FinderSync: FIFinderSync {
     private enum BadgeState { case converting, done, failed, clear }
     private let extensionEnabledKey = "fc.extensionEnabled"
     private let sharedSuiteName = "group.me.Latorre.Alex.FileConverter"
-    private lazy var ffmpegAvailableInExtension = checkFFmpegAvailability()
 
     override init() {
         super.init()
@@ -224,13 +223,13 @@ class FinderSync: FIFinderSync {
         case "tiff", "tif": return ["jpg", "png", "webp", "pdf"]
         case "bmp": return ["jpg", "png", "webp"]
         case "gif":
-            return ffmpegAvailableInExtension ? ["mp4", "png", "webp"] : ["png", "webp"]
+            return ["mp4", "png", "webp"]
         case "svg": return ["png", "pdf", "jpg"]
         case "cr2", "nef", "arw": return ["jpg", "png", "tiff"]
 
         case "mp4", "mov", "avi", "mkv", "webm",
              "mp3", "wav", "flac", "aac", "m4a", "ogg", "aiff":
-            return ffmpegAvailableInExtension ? mediaFormats(for: ext) : []
+            return mediaFormats(for: ext)
 
         default: return []
         }
@@ -465,31 +464,10 @@ class FinderSync: FIFinderSync {
     }
 
     private func convertMedia(inputURL: URL, outputURL: URL) throws {
-        guard ffmpegAvailableInExtension, let ffmpeg = toolPath("ffmpeg") else {
-            throw NSError(domain: "FileConverter", code: 3, userInfo: [NSLocalizedDescriptionKey: "Media conversion is unavailable from Finder extension on this system. Use the File Converter app menu for media conversion."])
+        guard let ffmpeg = toolPath("ffmpeg") else {
+            throw NSError(domain: "FileConverter", code: 3, userInfo: [NSLocalizedDescriptionKey: "ffmpeg not found. Install with: brew install ffmpeg"])
         }
         try runCommand(executablePath: ffmpeg, args: ["-y", "-i", inputURL.path, outputURL.path])
-    }
-
-    private func checkFFmpegAvailability() -> Bool {
-        guard let ffmpeg = toolPath("ffmpeg") else {
-            return false
-        }
-
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: ffmpeg)
-        process.arguments = ["-version"]
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        process.standardError = pipe
-
-        do {
-            try process.run()
-            process.waitUntilExit()
-            return process.terminationStatus == 0
-        } catch {
-            return false
-        }
     }
 
     private func convertWithMagick(inputURL: URL, outputURL: URL, toFormat: String) throws {
@@ -705,6 +683,11 @@ else:
     private func toolPath(_ tool: String) -> String? {
         let paths = ["/opt/homebrew/bin/\(tool)", "/usr/local/bin/\(tool)", "/usr/bin/\(tool)"]
         if let found = paths.first(where: { FileManager.default.fileExists(atPath: $0) }) {
+            // Resolve Homebrew symlinks to concrete binaries when possible.
+            if let resolved = try? URL(fileURLWithPath: found).resolvingSymlinksInPath().path,
+               FileManager.default.fileExists(atPath: resolved) {
+                return resolved
+            }
             return found
         }
 
@@ -779,10 +762,11 @@ else:
         do {
             _ = try execute("/usr/bin/env", [toolName] + args)
         } catch {
+            let details = (error as NSError).localizedDescription
             throw NSError(
                 domain: "FileConverter",
                 code: 32,
-                userInfo: [NSLocalizedDescriptionKey: "Cannot execute \(toolName). If installed via Homebrew, ensure Finder extension can access it or route conversion through host app/XPC."]
+                userInfo: [NSLocalizedDescriptionKey: "Cannot execute \(toolName). \(details)"]
             )
         }
     }
