@@ -232,12 +232,12 @@ class FinderSync: FIFinderSync {
         case "numbers": return ["xlsx", "csv", "pdf"]
         case "json": return ["csv", "xlsx"]
 
-        case "jpg", "jpeg": return ["png", "webp", "pdf", "tiff", "bmp", "heic"]
-        case "png": return ["jpg", "webp", "pdf", "tiff", "bmp", "heic"]
-        case "webp": return ["jpg", "png", "tiff", "pdf"]
-        case "heic": return ["jpg", "png", "webp", "tiff"]
-        case "tiff", "tif": return ["jpg", "png", "webp", "pdf"]
-        case "bmp": return ["jpg", "png", "webp"]
+        case "jpg", "jpeg": return ["png", "webp", "pdf", "tiff", "bmp", "heic", "svg"]
+        case "png": return ["jpg", "webp", "pdf", "tiff", "bmp", "heic", "svg"]
+        case "webp": return ["jpg", "png", "tiff", "pdf", "svg"]
+        case "heic": return ["jpg", "png", "webp", "tiff", "svg"]
+        case "tiff", "tif": return ["jpg", "png", "webp", "pdf", "svg"]
+        case "bmp": return ["jpg", "png", "webp", "svg"]
         case "gif":
             return ["mp4", "png", "webp"]
         case "svg": return ["png", "pdf", "jpg"]
@@ -378,6 +378,11 @@ class FinderSync: FIFinderSync {
             return
         }
 
+        if format == "svg" && inputExt != "svg" {
+            try convertToVectorSVG(inputURL: inputURL, outputURL: outputURL)
+            return
+        }
+
         if ["jpg", "jpeg", "png", "tiff", "tif", "pdf"].contains(format) {
             do {
                 try convertImage(inputURL: inputURL, outputURL: outputURL, toFormat: format)
@@ -388,6 +393,54 @@ class FinderSync: FIFinderSync {
         }
 
         try convertWithMagick(inputURL: inputURL, outputURL: outputURL, toFormat: format)
+    }
+
+    private func convertToVectorSVG(inputURL: URL, outputURL: URL) throws {
+        guard let magick = toolPath("magick") else {
+            throw NSError(domain: "FileConverter", code: 24, userInfo: [NSLocalizedDescriptionKey: "Install ImageMagick: brew install imagemagick"])
+        }
+        guard let potrace = toolPath("potrace") else {
+            throw NSError(domain: "FileConverter", code: 25, userInfo: [NSLocalizedDescriptionKey: "Install potrace: brew install potrace"])
+        }
+
+        let tempBMP = temporaryURL(fileExtension: "bmp")
+        let tempSVG = temporaryURL(fileExtension: "svg")
+        defer {
+            try? FileManager.default.removeItem(at: tempBMP)
+            try? FileManager.default.removeItem(at: tempSVG)
+        }
+
+        // Prepare a bilevel bitmap so potrace produces clean vector paths.
+        try runCommand(executablePath: magick, args: [
+            inputURL.path,
+            "-alpha", "remove",
+            "-colorspace", "Gray",
+            "-threshold", "55%",
+            "-type", "bilevel",
+            tempBMP.path
+        ])
+
+        try runCommand(executablePath: potrace, args: [tempBMP.path, "-s", "-o", outputURL.path])
+
+        // Optional clean-up pass when vpype is available.
+        if let vpype = toolPath("vpype") {
+            do {
+                try runCommand(executablePath: vpype, args: [
+                    "read", outputURL.path,
+                    "linesimplify",
+                    "linemerge",
+                    "write", tempSVG.path
+                ])
+                if FileManager.default.fileExists(atPath: tempSVG.path) {
+                    if FileManager.default.fileExists(atPath: outputURL.path) {
+                        try FileManager.default.removeItem(at: outputURL)
+                    }
+                    try FileManager.default.moveItem(at: tempSVG, to: outputURL)
+                }
+            } catch {
+                // Keep potrace output if vpype post-processing fails.
+            }
+        }
     }
 
     private func convertTextLike(inputURL: URL, inputExt: String, outputURL: URL, toFormat: String) throws {

@@ -117,16 +117,42 @@ final class ConversionRouter {
     private func convertToVectorSVG(inputURL: URL, outputURL: URL, createCopy: Bool) async throws -> URL {
         let magick = DependencyChecker.shared.toolPath("magick")
         let potrace = DependencyChecker.shared.toolPath("potrace")
+        let vpype = DependencyChecker.shared.isInstalled("vpype") ? DependencyChecker.shared.toolPath("vpype") : nil
         let tempBMP = inputURL.deletingLastPathComponent().appendingPathComponent("temp_\(UUID().uuidString).bmp")
+        let tempSVG = inputURL.deletingLastPathComponent().appendingPathComponent("temp_\(UUID().uuidString).svg")
+        defer {
+            try? FileManager.default.removeItem(at: tempBMP)
+            try? FileManager.default.removeItem(at: tempSVG)
+        }
         
-        // 1. Convert to BMP (potrace requires BMP or PBM)
-        _ = try await Shell.run([magick, inputURL.path, tempBMP.path])
+        // 1. Convert to a bilevel bitmap for cleaner vector paths.
+        _ = try await Shell.run([
+            magick,
+            inputURL.path,
+            "-alpha", "remove",
+            "-colorspace", "Gray",
+            "-threshold", "55%",
+            "-type", "bilevel",
+            tempBMP.path
+        ])
         
         // 2. Vectorize with potrace
         _ = try await Shell.run([potrace, "-s", tempBMP.path, "-o", outputURL.path])
-        
-        // 3. Cleanup temp file
-        try? FileManager.default.removeItem(at: tempBMP)
+
+        // 3. Optional cleanup with vpype if available.
+        if let vpype {
+            do {
+                _ = try await Shell.run([vpype, "read", outputURL.path, "linesimplify", "linemerge", "write", tempSVG.path])
+                if FileManager.default.fileExists(atPath: tempSVG.path) {
+                    if FileManager.default.fileExists(atPath: outputURL.path) {
+                        try FileManager.default.removeItem(at: outputURL)
+                    }
+                    try FileManager.default.moveItem(at: tempSVG, to: outputURL)
+                }
+            } catch {
+                // Keep potrace output if vpype pipeline is unavailable/fails.
+            }
+        }
         
         return try finalizeOutput(inputURL: inputURL, outputURL: outputURL, createCopy: createCopy)
     }

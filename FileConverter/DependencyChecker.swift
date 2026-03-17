@@ -8,6 +8,7 @@ final class DependencyChecker {
         "pandoc": "brew install pandoc",
         "magick": "brew install imagemagick",
         "potrace": "brew install potrace",
+        "vpype": "pip3 install vpype",
         "python3": "brew install python",
         "soffice": "brew install --cask libreoffice"
     ]
