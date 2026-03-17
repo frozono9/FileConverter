@@ -1,0 +1,8 @@
+.DS_Store
+build/
+.build/
+.build_local/
+.build_signed/
+DerivedData/
+*.dSYM/
+*.swp

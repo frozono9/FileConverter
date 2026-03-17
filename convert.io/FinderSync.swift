@@ -8,6 +8,9 @@ import PDFKit
 class FinderSync: FIFinderSync {
     private let logger = Logger(subsystem: "me.Latorre.Alex.FileConverter.FinderSync", category: "menu")
     private enum BadgeState { case converting, done, failed, clear }
+    private let extensionEnabledKey = "fc.extensionEnabled"
+    private let sharedSuiteName = "group.me.Latorre.Alex.FileConverter"
+    private lazy var ffmpegAvailableInExtension = checkFFmpegAvailability()
 
     override init() {
         super.init()
@@ -34,6 +37,10 @@ class FinderSync: FIFinderSync {
     }
 
     override func menu(for menuKind: FIMenuKind) -> NSMenu? {
+        guard isExtensionEnabled() else {
+            return nil
+        }
+
         guard menuKind == .contextualMenuForItems,
               let selected = FIFinderSyncController.default().selectedItemURLs(),
               let first = selected.first else {
@@ -75,6 +82,16 @@ class FinderSync: FIFinderSync {
         root.addItem(convertItem)
 
         return root
+    }
+
+    private func isExtensionEnabled() -> Bool {
+        if let shared = UserDefaults(suiteName: sharedSuiteName)?.object(forKey: extensionEnabledKey) as? Bool {
+            return shared
+        }
+        if let local = UserDefaults.standard.object(forKey: extensionEnabledKey) as? Bool {
+            return local
+        }
+        return true
     }
 
     @objc func performConversion(_ sender: Any?) {
@@ -206,23 +223,32 @@ class FinderSync: FIFinderSync {
         case "heic": return ["jpg", "png", "webp", "tiff"]
         case "tiff", "tif": return ["jpg", "png", "webp", "pdf"]
         case "bmp": return ["jpg", "png", "webp"]
-        case "gif": return ["mp4", "png", "webp"]
+        case "gif":
+            return ffmpegAvailableInExtension ? ["mp4", "png", "webp"] : ["png", "webp"]
         case "svg": return ["png", "pdf", "jpg"]
         case "cr2", "nef", "arw": return ["jpg", "png", "tiff"]
 
+        case "mp4", "mov", "avi", "mkv", "webm",
+             "mp3", "wav", "flac", "aac", "m4a", "ogg", "aiff":
+            return ffmpegAvailableInExtension ? mediaFormats(for: ext) : []
+
+        default: return []
+        }
+    }
+
+    private func mediaFormats(for ext: String) -> [String] {
+        switch ext {
         case "mp4": return ["mov", "avi", "mkv", "gif", "mp3", "m4a", "webm"]
         case "mov": return ["mp4", "avi", "mkv", "gif", "mp3", "m4a"]
         case "avi": return ["mp4", "mov", "mkv", "mp3"]
         case "mkv": return ["mp4", "mov", "avi", "mp3", "m4a"]
         case "webm": return ["mp4", "gif", "mp3"]
-
         case "mp3": return ["wav", "aac", "flac", "ogg", "m4a", "aiff"]
         case "wav": return ["mp3", "aac", "flac", "ogg", "m4a", "aiff"]
         case "flac": return ["mp3", "wav", "aac", "m4a", "aiff"]
         case "aac", "m4a": return ["mp3", "wav", "flac", "ogg"]
         case "ogg": return ["mp3", "wav", "flac", "aac"]
         case "aiff": return ["mp3", "wav", "flac", "aac"]
-
         default: return []
         }
     }
@@ -241,26 +267,27 @@ class FinderSync: FIFinderSync {
         }
 
         let inputExt = inputURL.pathExtension.lowercased()
-        let outputURL = uniqueOutputURL(for: inputURL, toFormat: toFormat)
+        let createCopy = createCopyPreference()
+        let outputURL = outputURL(for: inputURL, toFormat: toFormat, createCopy: createCopy)
 
         if isImageExt(inputExt) {
             try convertImageLike(inputURL: inputURL, outputURL: outputURL, toFormat: toFormat)
-            return outputURL
+            return try finalizeOutput(inputURL: inputURL, outputURL: outputURL, createCopy: createCopy)
         }
 
         if isDocumentExt(inputExt) {
             try convertDocument(inputURL: inputURL, outputURL: outputURL, toFormat: toFormat)
-            return outputURL
+            return try finalizeOutput(inputURL: inputURL, outputURL: outputURL, createCopy: createCopy)
         }
 
         if isSpreadsheetExt(inputExt) {
             try convertSpreadsheet(inputURL: inputURL, outputURL: outputURL, toFormat: toFormat)
-            return outputURL
+            return try finalizeOutput(inputURL: inputURL, outputURL: outputURL, createCopy: createCopy)
         }
 
         if isMediaExt(inputExt) {
             try convertMedia(inputURL: inputURL, outputURL: outputURL)
-            return outputURL
+            return try finalizeOutput(inputURL: inputURL, outputURL: outputURL, createCopy: createCopy)
         }
 
         throw NSError(domain: "FileConverter", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unsupported conversion."])
@@ -438,10 +465,31 @@ class FinderSync: FIFinderSync {
     }
 
     private func convertMedia(inputURL: URL, outputURL: URL) throws {
-        guard let ffmpeg = toolPath("ffmpeg") else {
-            throw NSError(domain: "FileConverter", code: 3, userInfo: [NSLocalizedDescriptionKey: "Install ffmpeg to convert media files."])
+        guard ffmpegAvailableInExtension, let ffmpeg = toolPath("ffmpeg") else {
+            throw NSError(domain: "FileConverter", code: 3, userInfo: [NSLocalizedDescriptionKey: "Media conversion is unavailable from Finder extension on this system. Use the File Converter app menu for media conversion."])
         }
         try runCommand(executablePath: ffmpeg, args: ["-y", "-i", inputURL.path, outputURL.path])
+    }
+
+    private func checkFFmpegAvailability() -> Bool {
+        guard let ffmpeg = toolPath("ffmpeg") else {
+            return false
+        }
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: ffmpeg)
+        process.arguments = ["-version"]
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = pipe
+
+        do {
+            try process.run()
+            process.waitUntilExit()
+            return process.terminationStatus == 0
+        } catch {
+            return false
+        }
     }
 
     private func convertWithMagick(inputURL: URL, outputURL: URL, toFormat: String) throws {
@@ -586,6 +634,44 @@ else:
             index += 1
         }
         return candidate
+    }
+
+    private func createCopyPreference() -> Bool {
+        let key = "fc.createCopyOnConversion"
+        if let shared = UserDefaults(suiteName: "group.me.Latorre.Alex.FileConverter")?.object(forKey: key) as? Bool {
+            return shared
+        }
+        if let local = UserDefaults.standard.object(forKey: key) as? Bool {
+            return local
+        }
+        return true
+    }
+
+    private func outputURL(for inputURL: URL, toFormat: String, createCopy: Bool) -> URL {
+        guard createCopy else {
+            let folder = inputURL.deletingLastPathComponent()
+            let base = inputURL.deletingPathExtension().lastPathComponent
+            let ext = toFormat.lowercased()
+            return folder.appendingPathComponent("\(base).\(ext)")
+        }
+        return uniqueOutputURL(for: inputURL, toFormat: toFormat)
+    }
+
+    private func finalizeOutput(inputURL: URL, outputURL: URL, createCopy: Bool) throws -> URL {
+        guard !createCopy else {
+            return outputURL
+        }
+
+        let inputPath = inputURL.standardizedFileURL.path
+        let outputPath = outputURL.standardizedFileURL.path
+        guard inputPath != outputPath else {
+            return outputURL
+        }
+
+        if FileManager.default.fileExists(atPath: inputURL.path) {
+            try FileManager.default.removeItem(at: inputURL)
+        }
+        return outputURL
     }
 
     private func isImageExt(_ ext: String) -> Bool {

@@ -14,11 +14,15 @@ enum ConversionRouterError: LocalizedError {
 final class ConversionRouter {
     static let shared = ConversionRouter()
     static let createCopyPreferenceKey = "fc.createCopyOnConversion"
+    static let suiteName = "group.me.Latorre.Alex.FileConverter"
 
     private init() {}
 
     func convert(inputURL: URL, toFormat: String) async throws -> URL {
-        let createCopy = UserDefaults.standard.object(forKey: Self.createCopyPreferenceKey) as? Bool ?? true
+        let sharedDefaults = UserDefaults(suiteName: Self.suiteName)
+        let createCopy = (sharedDefaults?.object(forKey: Self.createCopyPreferenceKey) as? Bool)
+            ?? (UserDefaults.standard.object(forKey: Self.createCopyPreferenceKey) as? Bool)
+            ?? true
         let outputURL = makeOutputURL(inputURL: inputURL, toFormat: toFormat, createCopy: createCopy)
         let inputExt = inputURL.pathExtension.lowercased()
         let outputExt = toFormat.lowercased()

@@ -16,8 +16,10 @@ enum ExtensionConversionRouter {
     static let suiteName = "group.me.Latorre.Alex.FileConverter"
 
     static func convert(inputURL: URL, toFormat: String) async throws -> URL {
-        let defaults = UserDefaults(suiteName: suiteName)
-        let createCopy = defaults?.object(forKey: createCopyPreferenceKey) as? Bool ?? true
+        let sharedDefaults = UserDefaults(suiteName: suiteName)
+        let createCopy = (sharedDefaults?.object(forKey: createCopyPreferenceKey) as? Bool)
+            ?? (UserDefaults.standard.object(forKey: createCopyPreferenceKey) as? Bool)
+            ?? true
         
         let outputURL = makeOutputURL(inputURL: inputURL, toFormat: toFormat, createCopy: createCopy)
         let inputExt = inputURL.pathExtension.lowercased()

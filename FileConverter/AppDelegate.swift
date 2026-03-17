@@ -2,12 +2,16 @@ import SwiftUI
 import AppKit
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    private let extensionEnabledKey = "fc.extensionEnabled"
+    private let extensionSuiteName = "me.Latorre.Alex.FileConverter.FinderSync"
+    private let sharedSuiteName = "group.me.Latorre.Alex.FileConverter"
     private var statusItem: NSStatusItem?
     private var preferencesWindowController: NSWindowController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
         configureStatusItem()
+        setExtensionEnabled(true)
     }
 
     private func configureStatusItem() {
@@ -18,10 +22,36 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem(title: "Settings", action: #selector(openPreferences), keyEquivalent: ","))
         menu.addItem(NSMenuItem(title: "Tutorial", action: #selector(openTutorial), keyEquivalent: ""))
         menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q"))
 
         menu.items.forEach { $0.target = self }
         statusItem?.menu = menu
+    }
+
+    @objc private func quitApp() {
+        setExtensionEnabled(false)
+        NSApplication.shared.terminate(nil)
+    }
+
+    private func setExtensionEnabled(_ enabled: Bool) {
+        UserDefaults.standard.set(enabled, forKey: extensionEnabledKey)
+        UserDefaults.standard.synchronize()
+
+        let sharedDefaults = UserDefaults(suiteName: sharedSuiteName)
+        sharedDefaults?.set(enabled, forKey: extensionEnabledKey)
+        sharedDefaults?.synchronize()
+
+        let extensionDefaults = UserDefaults(suiteName: extensionSuiteName)
+        extensionDefaults?.set(enabled, forKey: extensionEnabledKey)
+        extensionDefaults?.synchronize()
+
+        setExtensionDomainValue(enabled, forKey: extensionEnabledKey)
+    }
+
+    private func setExtensionDomainValue(_ value: Bool, forKey key: String) {
+        let appID = extensionSuiteName as CFString
+        CFPreferencesSetAppValue(key as CFString, value as CFPropertyList, appID)
+        CFPreferencesAppSynchronize(appID)
     }
 
     @objc private func openPreferences() {
