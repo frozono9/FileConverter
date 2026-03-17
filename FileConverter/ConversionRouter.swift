@@ -28,9 +28,9 @@ final class ConversionRouter {
         let inputExt = inputURL.pathExtension.lowercased()
         let outputExt = toFormat.lowercased()
 
-        if ["mp4", "mov", "avi", "mkv", "webm", "m4v", "mp3", "wav", "flac", "aac", "m4a", "ogg", "aiff"].contains(inputExt) {
+        if ["mp4", "mov", "mkv", "webm", "m4v", "mp3", "wav", "flac", "aac", "m4a", "ogg", "aiff"].contains(inputExt) {
             let ffmpeg = DependencyChecker.shared.toolPath("ffmpeg")
-            _ = try await Shell.run([ffmpeg, "-y", "-i", inputURL.path, outputURL.path])
+            _ = try await Shell.run([ffmpeg] + ffmpegArgs(inputURL: inputURL, outputURL: outputURL))
             return try finalizeOutput(inputURL: inputURL, outputURL: outputURL, createCopy: createCopy)
         }
 
@@ -179,6 +179,10 @@ final class ConversionRouter {
         _ = try await Shell.run([pandoc, tempMarkdown.path, "-o", outputURL.path])
 
         return try finalizeOutput(inputURL: inputURL, outputURL: outputURL, createCopy: createCopy)
+    }
+
+    private func ffmpegArgs(inputURL: URL, outputURL: URL) -> [String] {
+        ["-y", "-i", inputURL.path, outputURL.path]
     }
 
     private func normalizeLibreOfficeOutput(expected: URL, inputURL: URL, outputExt: String) -> URL {

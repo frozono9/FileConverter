@@ -243,7 +243,7 @@ class FinderSync: FIFinderSync {
         case "svg": return ["png", "pdf", "jpg"]
         case "cr2", "nef", "arw": return ["jpg", "png", "tiff"]
 
-        case "mp4", "mov", "avi", "mkv", "webm",
+        case "mp4", "mov", "mkv", "webm",
              "mp3", "wav", "flac", "aac", "m4a", "ogg", "aiff":
             return mediaFormats(for: ext)
 
@@ -253,10 +253,9 @@ class FinderSync: FIFinderSync {
 
     private func mediaFormats(for ext: String) -> [String] {
         switch ext {
-        case "mp4": return ["mov", "avi", "mkv", "gif", "mp3", "m4a", "webm"]
-        case "mov": return ["mp4", "avi", "mkv", "gif", "mp3", "m4a"]
-        case "avi": return ["mp4", "mov", "mkv", "mp3"]
-        case "mkv": return ["mp4", "mov", "avi", "mp3", "m4a"]
+        case "mp4": return ["mov", "gif", "mp3"]
+        case "mov": return ["mp4", "gif", "mp3", "m4a"]
+        case "mkv": return ["mp4", "mov", "mp3", "m4a"]
         case "webm": return ["mp4", "gif", "mp3"]
         case "mp3": return ["wav", "aac", "flac", "ogg", "m4a", "aiff"]
         case "wav": return ["mp3", "aac", "flac", "ogg", "m4a", "aiff"]
@@ -540,7 +539,11 @@ class FinderSync: FIFinderSync {
         guard let ffmpeg = toolPath("ffmpeg") else {
             throw NSError(domain: "FileConverter", code: 3, userInfo: [NSLocalizedDescriptionKey: "ffmpeg not found. Install with: brew install ffmpeg"])
         }
-        try runCommand(executablePath: ffmpeg, args: ["-y", "-i", inputURL.path, outputURL.path])
+        try runCommand(executablePath: ffmpeg, args: ffmpegArgs(inputURL: inputURL, outputURL: outputURL))
+    }
+
+    private func ffmpegArgs(inputURL: URL, outputURL: URL) -> [String] {
+        ["-y", "-i", inputURL.path, outputURL.path]
     }
 
     private func convertWithMagick(inputURL: URL, outputURL: URL, toFormat: String) throws {
@@ -746,7 +749,7 @@ else:
     }
 
     private func isMediaExt(_ ext: String) -> Bool {
-        ["mp4", "mov", "mkv", "avi", "webm", "m4v", "mp3", "wav", "flac", "aac", "m4a", "ogg", "aiff"].contains(ext)
+        ["mp4", "mov", "mkv", "webm", "m4v", "mp3", "wav", "flac", "aac", "m4a", "ogg", "aiff"].contains(ext)
     }
 
     private func isSpreadsheetExt(_ ext: String) -> Bool {

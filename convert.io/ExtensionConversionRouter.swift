@@ -25,7 +25,7 @@ enum ExtensionConversionRouter {
         let inputExt = inputURL.pathExtension.lowercased()
         let outputExt = toFormat.lowercased()
 
-        if ["mp4", "mov", "avi", "mkv", "webm", "m4v", "mp3", "wav", "flac", "aac", "m4a", "ogg", "aiff"].contains(inputExt) {
+        if ["mp4", "mov", "mkv", "webm", "m4v", "mp3", "wav", "flac", "aac", "m4a", "ogg", "aiff"].contains(inputExt) {
             _ = try await ExtensionShell.run([toolPath("ffmpeg"), "-y", "-i", inputURL.path, outputURL.path])
             return try finalizeOutput(inputURL: inputURL, outputURL: outputURL, createCopy: createCopy)
         }

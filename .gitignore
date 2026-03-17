@@ -1,8 +1,16 @@
 .DS_Store
 build/
+build_release/
 .build/
 .build_local/
 .build_signed/
 DerivedData/
 *.dSYM/
 *.swp
+*.dmg
+
+# Xcode user-specific data
+FileConverter.xcodeproj/xcuserdata/
+
+# Temporary icon/source artifacts
+FileConverter/Assets.xcassets/AppIcon.appiconset/_source_*.png

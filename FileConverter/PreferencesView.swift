@@ -33,7 +33,7 @@ struct SettingsView: View {
 
             HStack {
                 Spacer()
-                Button("Quit convert.io", role: .destructive) {
+                Button("Quit", role: .destructive) {
                     NotificationCenter.default.post(name: .fileConverterQuitRequested, object: nil)
                 }
                 .keyboardShortcut("q", modifiers: .command)

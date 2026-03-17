@@ -33,10 +33,9 @@ enum FileType {
         case "svg": return ["png", "pdf", "jpg"]
         case "cr2", "nef", "arw": return ["jpg", "png", "tiff"]
 
-        case "mp4": return ["mov", "avi", "mkv", "gif", "mp3", "m4a", "webm"]
-        case "mov": return ["mp4", "avi", "mkv", "gif", "mp3", "m4a"]
-        case "avi": return ["mp4", "mov", "mkv", "mp3"]
-        case "mkv": return ["mp4", "mov", "avi", "mp3", "m4a"]
+        case "mp4": return ["mov", "gif", "mp3"]
+        case "mov": return ["mp4", "gif", "mp3", "m4a"]
+        case "mkv": return ["mp4", "mov", "mp3", "m4a"]
         case "webm": return ["mp4", "gif", "mp3"]
 
         case "mp3": return ["wav", "aac", "flac", "ogg", "m4a", "aiff"]
