@@ -1,6 +1,10 @@
 import SwiftUI
 import AppKit
 
+extension Notification.Name {
+    static let fileConverterQuitRequested = Notification.Name("fileConverterQuitRequested")
+}
+
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let extensionEnabledKey = "fc.extensionEnabled"
     private let extensionSuiteName = "me.Latorre.Alex.FileConverter.FinderSync"
@@ -12,25 +16,46 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(.accessory)
         configureStatusItem()
         setExtensionEnabled(true)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleQuitRequestNotification), name: .fileConverterQuitRequested, object: nil)
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     private func configureStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        statusItem?.button?.image = NSImage(systemSymbolName: "arrow.triangle.2.circlepath", accessibilityDescription: "File Converter")
+        statusItem?.button?.image = NSImage(systemSymbolName: "arrow.triangle.2.circlepath", accessibilityDescription: "Convert to...")
+        statusItem?.button?.action = #selector(handleStatusItemClick)
+        statusItem?.button?.target = self
+        statusItem?.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
+    }
 
+    @objc private func handleStatusItemClick() {
+        if NSApp.currentEvent?.type == .rightMouseUp {
+            showContextMenu()
+            return
+        }
+        openPreferences()
+    }
+
+    private func showContextMenu() {
+        guard let button = statusItem?.button else { return }
         let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "Settings", action: #selector(openPreferences), keyEquivalent: ","))
-        menu.addItem(NSMenuItem(title: "Tutorial", action: #selector(openTutorial), keyEquivalent: ""))
-        menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q"))
-
         menu.items.forEach { $0.target = self }
         statusItem?.menu = menu
+        button.performClick(nil)
+        statusItem?.menu = nil
     }
 
     @objc private func quitApp() {
         setExtensionEnabled(false)
         NSApplication.shared.terminate(nil)
+    }
+
+    @objc private func handleQuitRequestNotification() {
+        quitApp()
     }
 
     private func setExtensionEnabled(_ enabled: Bool) {
@@ -55,20 +80,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openPreferences() {
-        showWindow(tabIndex: 0)
+        showWindow()
     }
 
     @objc private func openTutorial() {
-        showWindow(tabIndex: 1)
+        showWindow()
     }
 
-    private func showWindow(tabIndex: Int) {
+    private func showWindow() {
         if preferencesWindowController == nil {
             let view = PreferencesView()
             let hosting = NSHostingController(rootView: view)
             let window = NSWindow(contentViewController: hosting)
-            window.title = "Preferences"
-            window.setContentSize(NSSize(width: 450, height: 350))
+            window.title = "Settings"
+            window.setContentSize(NSSize(width: 420, height: 220))
             window.styleMask = NSWindow.StyleMask([.titled, .closable, .miniaturizable])
             preferencesWindowController = NSWindowController(window: window)
         }

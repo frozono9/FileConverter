@@ -67,7 +67,20 @@ class FinderSync: FIFinderSync {
             return root
         }
 
-        let convertItem = NSMenuItem(title: "File Converter", action: nil, keyEquivalent: "")
+        let convertItem = NSMenuItem(title: "Convert to...", action: nil, keyEquivalent: "")
+        if let base = NSImage(systemSymbolName: "arrow.triangle.2.circlepath", accessibilityDescription: "Convert to") {
+            let sized = base.withSymbolConfiguration(NSImage.SymbolConfiguration(pointSize: 13, weight: .regular)) ?? base
+            if #available(macOS 12.0, *) {
+                let color = preferredMenuIconColor()
+                let colored = sized.withSymbolConfiguration(NSImage.SymbolConfiguration(paletteColors: [color])) ?? sized
+                colored.isTemplate = false
+                convertItem.image = colored
+            } else {
+                let fallback = sized.copy() as? NSImage
+                fallback?.isTemplate = true
+                convertItem.image = fallback
+            }
+        }
         let submenu = NSMenu(title: "Formats")
 
         for format in formats {
@@ -769,5 +782,11 @@ else:
                 userInfo: [NSLocalizedDescriptionKey: "Cannot execute \(toolName). \(details)"]
             )
         }
+    }
+
+    private func preferredMenuIconColor() -> NSColor {
+        let global = UserDefaults.standard.persistentDomain(forName: UserDefaults.globalDomain)
+        let style = (global?["AppleInterfaceStyle"] as? String)?.lowercased()
+        return style == "dark" ? .white : .black
     }
 }

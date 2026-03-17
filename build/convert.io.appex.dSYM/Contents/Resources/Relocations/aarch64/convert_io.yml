@@ -1,5 +1,0 @@
----
-triple:          'arm64-apple-darwin'
-binary-path:     '/Users/alexlatorre/Downloads/FileConverter/build/convert.io.appex/Contents/MacOS/convert_io'
-relocations:     []
-...
