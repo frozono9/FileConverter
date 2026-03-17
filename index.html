@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FileConverter — Convert anything, right from Finder. Privately.</title>
+  <meta name="description" content="Right-click any file in Finder and convert it instantly. No uploads. No cloud. No accounts. Your files never leave your Mac." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --crimson: #8B1A4A;
+      --crimson-deep: #6B1238;
+      --crimson-pale: #f9eef3;
+      --white: #FFFFFF;
+      --off-white: #FAF8F9;
+      --ink: #1A0A10;
+      --muted: #8A6070;
+      --border: rgba(139,26,74,0.12);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--off-white);
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+
+    /* HERO — two column */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 3rem;
+      padding: 7rem 5rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 60% 70% at 0% 50%, rgba(139,26,74,0.07) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 40% at 100% 80%, rgba(139,26,74,0.05) 0%, transparent 60%);
+    }
+    .hero-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: radial-gradient(ellipse 80% 80% at 25% 50%, black 20%, transparent 70%);
+    }
+    .hero-left { position: relative; z-index: 1; }
+    .hero-right {
+      position: relative; z-index: 1;
+      display: flex; justify-content: center; align-items: center;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--crimson-pale); border: 1px solid rgba(139,26,74,0.2);
+      color: var(--crimson); border-radius: 100px;
+      font-size: 0.73rem; font-weight: 700; letter-spacing: 0.05em;
+      padding: 0.28rem 0.85rem; margin-bottom: 1.4rem;
+      text-transform: uppercase;
+      opacity: 0; animation: fadeUp 0.6s 0.1s ease forwards;
+    }
+    .hero-badge span { width: 6px; height: 6px; border-radius: 50%; background: var(--crimson); display: block; }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 3.2vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.06;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      margin-bottom: 1.1rem;
+      opacity: 0; animation: fadeUp 0.6s 0.2s ease forwards;
+    }
+    .hero h1 em { font-style: normal; color: var(--crimson); }
+
+    .hero-sub {
+      font-size: 1rem; font-weight: 300; color: var(--muted);
+      line-height: 1.7; max-width: 400px;
+      margin-bottom: 1.8rem;
+      opacity: 0; animation: fadeUp 0.6s 0.3s ease forwards;
+    }
+
+    .trust-pills {
+      display: flex; flex-wrap: wrap; gap: 0.45rem;
+      margin-bottom: 1.8rem;
+      opacity: 0; animation: fadeUp 0.6s 0.4s ease forwards;
+    }
+    .trust-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 100px; padding: 0.28rem 0.75rem;
+      font-size: 0.73rem; font-weight: 500; color: var(--muted);
+    }
+    .trust-pill svg { color: var(--crimson); flex-shrink: 0; }
+
+    .hero-actions {
+      display: flex; gap: 0.75rem; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp 0.6s 0.5s ease forwards;
+    }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--crimson); color: #fff;
+      padding: 0.78rem 1.5rem; border-radius: 12px;
+      font-size: 0.92rem; font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 4px 24px rgba(139,26,74,0.35);
+      transition: all 0.2s;
+    }
+    .btn-primary:hover { background: var(--crimson-deep); transform: translateY(-1px); }
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: transparent; color: var(--crimson);
+      padding: 0.78rem 1.5rem; border-radius: 12px;
+      font-size: 0.92rem; font-weight: 500;
+      text-decoration: none; border: 1.5px solid var(--border);
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--crimson); background: var(--crimson-pale); }
+    .hero-note {
+      font-size: 0.73rem; color: var(--muted); margin-top: 0.9rem;
+      opacity: 0; animation: fadeUp 0.6s 0.6s ease forwards;
+    }
+
+    /* ANIMATED MOCKUP */
+    .mockup-scene {
+      width: 100%; max-width: 460px;
+      opacity: 0; animation: fadeUp 0.8s 0.5s ease forwards;
+    }
+    .mockup {
+      background: #1E1018;
+      border-radius: 16px;
+      padding: 1.2rem 1.2rem 1.4rem;
+      box-shadow:
+        0 40px 100px rgba(0,0,0,0.32),
+        0 0 0 1px rgba(255,255,255,0.07),
+        inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .mockup-bar { display: flex; gap: 6px; margin-bottom: 1rem; }
+    .mockup-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .mockup-dot:nth-child(1) { background: #FF5F57; }
+    .mockup-dot:nth-child(2) { background: #FEBC2E; }
+    .mockup-dot:nth-child(3) { background: #28C840; }
+
+    .finder-list { display: flex; flex-direction: column; gap: 2px; }
+
+    .finder-item {
+      display: flex; align-items: center; gap: 9px;
+      color: rgba(255,255,255,0.65);
+      padding: 7px 10px; border-radius: 7px;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 0.8rem; position: relative;
+      transition: background 0.25s, color 0.25s;
+      user-select: none;
+    }
+    .finder-item .fi-icon { font-size: 1rem; flex-shrink: 0; }
+    .finder-item .fi-name { flex: 1; }
+    .finder-item .fi-badge { font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; }
+    .finder-item.selected { background: var(--crimson); color: #fff; }
+    .finder-item.converting { background: rgba(139,26,74,0.22); }
+    .finder-item.done { background: rgba(40,200,100,0.12); }
+    .finder-item.done .fi-badge { opacity: 1; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner-badge {
+      width: 13px; height: 13px;
+      border: 2px solid rgba(255,255,255,0.15);
+      border-top-color: rgba(255,255,255,0.75);
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+      display: none; flex-shrink: 0;
+    }
+    .finder-item.converting .spinner-badge { display: block; }
+
+    .progress-bar-wrap {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 0 0 7px 7px; overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--crimson-deep), #C0325A);
+      transition: width 1.8s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* context menu */
+    .ctx-wrap { position: relative; }
+    .ctx-menu {
+      background: rgba(30,16,24,0.97);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.11);
+      border-radius: 11px;
+      padding: 5px;
+      min-width: 200px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      margin-top: 6px;
+      margin-left: 24px;
+      opacity: 0;
+      transform: scale(0.94) translateY(-6px);
+      transform-origin: top left;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
+    }
+    .ctx-menu.visible { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
+    .ctx-item {
+      padding: 6px 10px; border-radius: 6px;
+      color: rgba(255,255,255,0.5);
+      font-family: -apple-system, sans-serif; font-size: 0.77rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .ctx-item.hl { background: var(--crimson); color: #fff; position: relative; }
+    .ctx-sep { height: 1px; background: rgba(255,255,255,0.08); margin: 3px 2px; }
+
+    /* submenu */
+    .submenu {
+      position: absolute;
+      left: calc(100% + 4px); top: -5px;
+      background: rgba(30,16,24,0.97);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.11);
+      border-radius: 11px;
+      padding: 5px;
+      min-width: 110px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      opacity: 0;
+      transform: scale(0.94) translateX(-6px);
+      transform-origin: top left;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+    .submenu.visible { opacity: 1; transform: scale(1) translateX(0); }
+    .sub-item {
+      padding: 6px 12px; border-radius: 6px;
+      color: rgba(255,255,255,0.58);
+      font-family: -apple-system, sans-serif; font-size: 0.77rem;
+      transition: background 0.12s, color 0.12s;
+    }
+    .sub-item.hl { background: var(--crimson); color: #fff; }
+
+    /* new file slide-in */
+    .finder-item.new-file {
+      opacity: 0; transform: translateX(-10px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .finder-item.new-file.appear { opacity: 1; transform: translateX(0); }
+
+    /* SECTION BASE */
+    section { padding: 6rem 2rem; }
+    .container { max-width: 1000px; margin: 0 auto; }
+    .section-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--crimson); margin-bottom: 1rem;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 800; letter-spacing: -0.02em;
+      line-height: 1.1; margin-bottom: 1.2rem;
+    }
+    .section-sub {
+      font-size: 1.05rem; font-weight: 300;
+      color: var(--muted); line-height: 1.7; max-width: 560px;
+    }
+
+    /* FORMATS */
+    #formats { background: var(--white); }
+    .formats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1.25rem; margin-top: 3rem;
+    }
+    .format-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.4rem 1.1rem;
+      transition: all 0.2s ease;
+    }
+    .format-card:hover {
+      border-color: var(--crimson);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(139,26,74,0.08);
+    }
+    .format-card-icon {
+      width: 38px; height: 38px; border-radius: 9px;
+      background: linear-gradient(135deg, var(--crimson-pale) 0%, rgba(139,26,74,0.1) 100%);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 0.7rem; font-size: 1.1rem;
+    }
+    .format-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.88rem; font-weight: 700; margin-bottom: 0.4rem;
+    }
+    .format-card p { font-size: 0.73rem; color: var(--muted); line-height: 1.4; margin-bottom: 0.6rem; }
+    .format-tags { display: flex; flex-wrap: wrap; gap: 3px; }
+    .tag {
+      background: var(--white); border: 1px solid var(--crimson);
+      color: var(--crimson); font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      padding: 2px 7px; border-radius: 4px;
+    }
+
+    /* PRIVACY */
+    #privacy {
+      background: var(--ink); color: #fff; position: relative; overflow: hidden;
+    }
+    #privacy::before {
+      content: ''; position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 50% 60% at 100% 50%, rgba(139,26,74,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 50% at 0% 80%, rgba(139,26,74,0.10) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    #privacy .section-label { color: rgba(255,255,255,0.4); }
+    #privacy .section-title { color: #fff; }
+    #privacy .section-sub { color: rgba(255,255,255,0.55); }
+
+    .privacy-layout {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 3.5rem; margin-top: 3rem; align-items: start;
+    }
+    .privacy-cards { display: flex; flex-direction: column; gap: 1rem; }
+    .privacy-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px; padding: 1.4rem;
+      display: flex; gap: 1rem; align-items: flex-start;
+      transition: background 0.2s;
+    }
+    .privacy-card:hover { background: rgba(255,255,255,0.07); }
+    .privacy-icon {
+      width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0;
+      background: rgba(139,26,74,0.35); border: 1px solid rgba(139,26,74,0.5);
+      display: flex; align-items: center; justify-content: center; color: #e88aaa;
+    }
+    .privacy-card h4 {
+      font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700;
+      color: #fff; margin-bottom: 0.25rem;
+    }
+    .privacy-card p { font-size: 0.8rem; color: rgba(255,255,255,0.5); line-height: 1.6; }
+
+    .compare-table {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px; overflow: hidden;
+    }
+    .compare-header {
+      display: grid; grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .compare-header div {
+      padding: 0.85rem 1.2rem;
+      font-family: 'Syne', sans-serif; font-size: 0.72rem;
+      font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .ch-bad { color: rgba(255,255,255,0.3); border-right: 1px solid rgba(255,255,255,0.07); }
+    .ch-good { color: #e88aaa; }
+    .compare-row-item {
+      display: grid; grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .compare-row-item:last-child { border-bottom: none; }
+    .cri-bad, .cri-good {
+      padding: 0.65rem 1.2rem; font-size: 0.78rem; line-height: 1.4;
+      display: flex; align-items: flex-start; gap: 7px;
+    }
+    .cri-bad { color: rgba(255,255,255,0.32); border-right: 1px solid rgba(255,255,255,0.05); }
+    .cri-good { color: rgba(255,255,255,0.72); background: rgba(139,26,74,0.07); }
+    .cri-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+    .cri-bad .cri-dot { background: rgba(255,255,255,0.15); }
+    .cri-good .cri-dot { background: #e88aaa; }
+
+    /* HOW IT WORKS */
+    #how { background: var(--off-white); }
+    .steps {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem; margin-top: 3rem;
+    }
+    .step {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.6rem;
+      position: relative; overflow: hidden;
+    }
+    .step::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--crimson); opacity: 0; transition: opacity 0.2s;
+    }
+    .step:hover::before { opacity: 1; }
+    .step-num {
+      font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800;
+      color: var(--crimson-pale); line-height: 1; margin-bottom: 0.7rem;
+    }
+    .step h3 { font-family: 'Syne', sans-serif; font-size: 0.92rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .step p { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+    /* FOOTER */
+    footer {
+      background: var(--ink); color: rgba(255,255,255,0.4);
+      padding: 2rem; text-align: center; font-size: 0.82rem;
+    }
+    footer a { color: rgba(255,255,255,0.6); text-decoration: none; }
+    footer a:hover { color: #fff; }
+
+    /* KEYFRAMES */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 960px) {
+      .hero { grid-template-columns: 1fr; text-align: center; padding: 6rem 2rem 4rem; gap: 2.5rem; }
+      .hero-left { display: flex; flex-direction: column; align-items: center; }
+      .trust-pills, .hero-actions { justify-content: center; }
+      .hero-sub { text-align: center; }
+      .mockup-scene { max-width: 400px; }
+      .formats-grid { grid-template-columns: repeat(3, 1fr); }
+      .steps { grid-template-columns: repeat(2, 1fr); }
+      .privacy-layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .formats-grid { grid-template-columns: repeat(2, 1fr); }
+      .steps { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+
+    <!-- LEFT: copy -->
+    <div class="hero-left">
+      <div class="hero-badge"><span></span>100% Local · Zero Uploads · macOS</div>
+      <h1>Convert <em>any file,</em><br/>with one click.</h1>
+      <p class="hero-sub">Right-click any file in Finder. Pick a format. Done. Everything runs on your Mac — no uploads, no accounts, no internet required.</p>
+
+      <div class="trust-pills">
+        <span class="trust-pill">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 4v5c0 4.418-3.134 8.418-7 9.5C8.134 20.418 5 16.418 5 12V7l7-4z"/></svg>
+          No uploads ever
+        </span>
+        <span class="trust-pill">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636a9 9 0 010 12.728M6.343 6.343a9 9 0 000 12.728M12 12h.01"/></svg>
+          Works offline
+        </span>
+        <span class="trust-pill">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+          No account
+        </span>
+        <span class="trust-pill">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3"/></svg>
+          Free forever
+        </span>
+      </div>
+
+      <div class="hero-actions">
+        <a href="FileConverter-Installer.dmg" class="btn-primary" download>
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"/></svg>
+          Download for macOS
+        </a>
+        <a href="#formats" class="btn-secondary">See all formats</a>
+      </div>
+      <p class="hero-note">macOS 13 Ventura or later · Apple Silicon &amp; Intel</p>
+    </div>
+
+    <!-- RIGHT: animated mockup -->
+    <div class="hero-right">
+      <div class="mockup-scene">
+        <div class="mockup">
+          <div class="mockup-bar">
+            <div class="mockup-dot"></div>
+            <div class="mockup-dot"></div>
+            <div class="mockup-dot"></div>
+          </div>
+
+          <div class="finder-list">
+            <!-- pdf -->
+            <div class="finder-item" id="fi-pdf">
+              <span class="fi-icon">📄</span>
+              <span class="fi-name">Q3-report.pdf</span>
+              <span class="fi-badge"></span>
+            </div>
+            <!-- xlsx -->
+            <div class="finder-item" id="fi-xlsx">
+              <span class="fi-icon">📊</span>
+              <span class="fi-name">data-export.xlsx</span>
+              <div class="spinner-badge" id="sp-xlsx"></div>
+              <span class="fi-badge" id="bg-xlsx"></span>
+              <div class="progress-bar-wrap"><div class="progress-bar" id="pb-xlsx"></div></div>
+            </div>
+            <!-- csv output (hidden) -->
+            <div class="finder-item new-file" id="fi-csv">
+              <span class="fi-icon">📋</span>
+              <span class="fi-name">data-export.csv</span>
+              <span class="fi-badge" style="opacity:1;">✓</span>
+            </div>
+            <!-- mp4 -->
+            <div class="finder-item" id="fi-mp4">
+              <span class="fi-icon">🎬</span>
+              <span class="fi-name">promo-video.mp4</span>
+              <div class="spinner-badge" id="sp-mp4"></div>
+              <span class="fi-badge" id="bg-mp4"></span>
+              <div class="progress-bar-wrap"><div class="progress-bar" id="pb-mp4"></div></div>
+            </div>
+            <!-- mp3 output (hidden) -->
+            <div class="finder-item new-file" id="fi-mp3">
+              <span class="fi-icon">🎵</span>
+              <span class="fi-name">promo-video.mp3</span>
+              <span class="fi-badge" style="opacity:1;">✓</span>
+            </div>
+          </div>
+
+          <!-- ctx xlsx -->
+          <div class="ctx-wrap">
+            <div class="ctx-menu" id="ctx-xlsx">
+              <div class="ctx-item" style="opacity:.35">Open</div>
+              <div class="ctx-item" style="opacity:.35">Get Info</div>
+              <div class="ctx-sep"></div>
+              <div class="ctx-item hl" id="ctx-convert-xlsx">
+                Convert to…
+                <span>▶</span>
+                <div class="submenu" id="sub-xlsx">
+                  <div class="sub-item" id="sub-csv">CSV</div>
+                  <div class="sub-item">JSON</div>
+                  <div class="sub-item">PDF</div>
+                  <div class="sub-item">TSV</div>
+                </div>
+              </div>
+              <div class="ctx-sep"></div>
+              <div class="ctx-item" style="opacity:.35">Move to Trash</div>
+            </div>
+          </div>
+
+          <!-- ctx mp4 -->
+          <div class="ctx-wrap" id="wrap-mp4" style="display:none;">
+            <div class="ctx-menu" id="ctx-mp4">
+              <div class="ctx-item" style="opacity:.35">Open</div>
+              <div class="ctx-item" style="opacity:.35">Get Info</div>
+              <div class="ctx-sep"></div>
+              <div class="ctx-item hl">
+                Convert to…
+                <span>▶</span>
+                <div class="submenu" id="sub-mp4">
+                  <div class="sub-item">MOV</div>
+                  <div class="sub-item">MKV</div>
+                  <div class="sub-item" id="sub-mp3">MP3</div>
+                  <div class="sub-item">GIF</div>
+                </div>
+              </div>
+              <div class="ctx-sep"></div>
+              <div class="ctx-item" style="opacity:.35">Move to Trash</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FORMATS -->
+  <section id="formats">
+    <div class="container">
+      <p class="section-label">What it converts</p>
+      <h2 class="section-title">Every format<br/>you actually need</h2>
+      <p class="section-sub">FileConverter routes each file to the right engine automatically — ffmpeg, pandoc, ImageMagick, and LibreOffice — all running locally.</p>
+      <div class="formats-grid">
+        <div class="format-card">
+          <div class="format-card-icon">📄</div>
+          <h3>Documents</h3>
+          <p>Full-fidelity conversion between all major document formats.</p>
+          <div class="format-tags">
+            <span class="tag">PDF</span><span class="tag">DOCX</span><span class="tag">MD</span>
+            <span class="tag">HTML</span><span class="tag">TXT</span><span class="tag">RTF</span><span class="tag">EPUB</span>
+          </div>
+        </div>
+        <div class="format-card">
+          <div class="format-card-icon">🖼</div>
+          <h3>Images</h3>
+          <p>Raster, vector, RAW — convert and re-encode with ImageMagick.</p>
+          <div class="format-tags">
+            <span class="tag">JPG</span><span class="tag">PNG</span><span class="tag">WEBP</span>
+            <span class="tag">HEIC</span><span class="tag">SVG</span><span class="tag">RAW</span>
+          </div>
+        </div>
+        <div class="format-card">
+          <div class="format-card-icon">🎬</div>
+          <h3>Video</h3>
+          <p>Re-encode or extract audio from any video file with ffmpeg.</p>
+          <div class="format-tags">
+            <span class="tag">MP4</span><span class="tag">MOV</span><span class="tag">MKV</span>
+            <span class="tag">WEBM</span><span class="tag">GIF</span>
+          </div>
+        </div>
+        <div class="format-card">
+          <div class="format-card-icon">🎵</div>
+          <h3>Audio</h3>
+          <p>Lossless and compressed transcoding between all audio formats.</p>
+          <div class="format-tags">
+            <span class="tag">MP3</span><span class="tag">WAV</span><span class="tag">FLAC</span>
+            <span class="tag">AAC</span><span class="tag">OGG</span>
+          </div>
+        </div>
+        <div class="format-card">
+          <div class="format-card-icon">📊</div>
+          <h3>Spreadsheets</h3>
+          <p>Transform data files with pandas. Multi-sheet XLSX aware.</p>
+          <div class="format-tags">
+            <span class="tag">XLSX</span><span class="tag">CSV</span><span class="tag">JSON</span>
+            <span class="tag">TSV</span><span class="tag">ODS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRIVACY -->
+  <section id="privacy">
+    <div class="container" style="position:relative;z-index:1;">
+      <p class="section-label">Privacy first</p>
+      <h2 class="section-title">Your files stay<br/>on your machine</h2>
+      <p class="section-sub">Most online converters upload your files to a server and store them — sometimes indefinitely. FileConverter does the opposite.</p>
+      <div class="privacy-layout">
+        <div class="privacy-cards">
+          <div class="privacy-card">
+            <div class="privacy-icon">
+              <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 4v5c0 4.418-3.134 8.418-7 9.5C8.134 20.418 5 16.418 5 12V7l7-4z"/></svg>
+            </div>
+            <div>
+              <h4>Zero network access</h4>
+              <p>No telemetry, no analytics, no pinging home. Works identically with Wi-Fi off. Contracts, health records, financials — nothing leaves your disk.</p>
+            </div>
+          </div>
+          <div class="privacy-card">
+            <div class="privacy-icon">
+              <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+            </div>
+            <div>
+              <h4>No account, no tracking</h4>
+              <p>No sign-up, no licence key, no email. FileConverter doesn't know who you are or what you convert. It's a tool, not a service.</p>
+            </div>
+          </div>
+          <div class="privacy-card">
+            <div class="privacy-icon">
+              <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path stroke-linecap="round" stroke-linejoin="round" d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            </div>
+            <div>
+              <h4>Open source engines</h4>
+              <p>Powered by ffmpeg, pandoc, ImageMagick, and LibreOffice — audited by millions of developers. No proprietary black box processes your data.</p>
+            </div>
+          </div>
+        </div>
+        <div class="compare-table">
+          <div class="compare-header">
+            <div class="ch-bad">Online converters</div>
+            <div class="ch-good">FileConverter</div>
+          </div>
+          <div class="compare-row-item">
+            <div class="cri-bad"><div class="cri-dot"></div>File uploaded to remote server</div>
+            <div class="cri-good"><div class="cri-dot"></div>Runs entirely on your Mac</div>
+          </div>
+          <div class="compare-row-item">
+            <div class="cri-bad"><div class="cri-dot"></div>Stored in cloud, retention unknown</div>
+            <div class="cri-good"><div class="cri-dot"></div>Files never leave your disk</div>
+          </div>
+          <div class="compare-row-item">
+            <div class="cri-bad"><div class="cri-dot"></div>Account required, email collected</div>
+            <div class="cri-good"><div class="cri-dot"></div>No account, no email, no sign-up</div>
+          </div>
+          <div class="compare-row-item">
+            <div class="cri-bad"><div class="cri-dot"></div>Usage tracked and monetized</div>
+            <div class="cri-good"><div class="cri-dot"></div>Zero telemetry of any kind</div>
+          </div>
+          <div class="compare-row-item">
+            <div class="cri-bad"><div class="cri-dot"></div>Requires internet connection</div>
+            <div class="cri-good"><div class="cri-dot"></div>Works fully offline</div>
+          </div>
+          <div class="compare-row-item">
+            <div class="cri-bad"><div class="cri-dot"></div>File size caps and rate limits</div>
+            <div class="cri-good"><div class="cri-dot"></div>No limits — convert 50GB files</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how">
+    <div class="container">
+      <p class="section-label">How it works</p>
+      <h2 class="section-title">Three steps.<br/>Zero friction.</h2>
+      <p class="section-sub">Install once, forget about it. FileConverter lives in your menu bar and is always one right-click away.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <h3>Launch once</h3>
+          <p>Open FileConverter and it settles into your menu bar. It registers as a Login Item so it's ready on every restart — automatically.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <h3>Right-click any file</h3>
+          <p>In Finder, right-click any supported file. "Convert to…" appears in the context menu. Hover to see every valid output format.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <h3>Watch the badge</h3>
+          <p>A spinning badge appears on the file while it converts. A green checkmark confirms success. The new file lands right next to the original.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <h3>Nothing leaves your Mac</h3>
+          <p>Conversions run through locally installed tools — ffmpeg, pandoc, ImageMagick. No network request is ever made.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>FileConverter — Built for macOS — Your files never leave your Mac &nbsp;·&nbsp; <a href="https://github.com/yourusername/fileconverter">GitHub</a></p>
+  </footer>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+
+    // hide new-file rows initially
+    ['fi-csv','fi-mp3'].forEach(id => {
+      const el = $(id);
+      el.style.display = 'none';
+    });
+
+    async function xlsxScene() {
+      const fiXlsx = $('fi-xlsx'), ctx = $('ctx-xlsx'), sub = $('sub-xlsx');
+      const subCsv = $('sub-csv'), pb = $('pb-xlsx'), bg = $('bg-xlsx'), fiCsv = $('fi-csv');
+
+      // reset
+      fiXlsx.className = 'finder-item';
+      ctx.classList.remove('visible'); sub.classList.remove('visible');
+      subCsv.classList.remove('hl');
+      pb.style.transition = 'none'; pb.style.width = '0%';
+      bg.textContent = '';
+      fiCsv.style.display = 'none'; fiCsv.classList.remove('appear');
+
+      await wait(700);
+      fiXlsx.classList.add('selected');
+      await wait(450);
+      ctx.classList.add('visible');
+      await wait(450);
+      sub.classList.add('visible');
+      await wait(550);
+      subCsv.classList.add('hl');
+      await wait(450);
+      ctx.classList.remove('visible'); sub.classList.remove('visible');
+      await wait(180);
+      fiXlsx.classList.remove('selected');
+      fiXlsx.classList.add('converting');
+      await wait(50);
+      pb.style.transition = 'width 1.8s cubic-bezier(0.4,0,0.2,1)';
+      pb.style.width = '80%';
+      await wait(1900);
+      pb.style.transition = 'width 0.25s ease';
+      pb.style.width = '100%';
+      await wait(280);
+      fiXlsx.classList.remove('converting');
+      fiXlsx.classList.add('done');
+      bg.textContent = '✓';
+      pb.style.transition = 'none'; pb.style.width = '0%';
+      fiCsv.style.display = 'flex';
+      await wait(30); fiCsv.classList.add('appear');
+      await wait(2200);
+      fiXlsx.classList.remove('done'); bg.textContent = '';
+      fiCsv.classList.remove('appear');
+      await wait(380); fiCsv.style.display = 'none';
+      await wait(200);
+    }
+
+    async function mp4Scene() {
+      const fiMp4 = $('fi-mp4'), wrapMp4 = $('wrap-mp4');
+      const ctx = $('ctx-mp4'), sub = $('sub-mp4');
+      const subMp3 = $('sub-mp3'), pb = $('pb-mp4'), bg = $('bg-mp4'), fiMp3 = $('fi-mp3');
+
+      // reset
+      fiMp4.className = 'finder-item';
+      ctx.classList.remove('visible'); sub.classList.remove('visible');
+      subMp3.classList.remove('hl');
+      pb.style.transition = 'none'; pb.style.width = '0%';
+      bg.textContent = '';
+      fiMp3.style.display = 'none'; fiMp3.classList.remove('appear');
+
+      // swap visible ctx
+      document.querySelector('[id="ctx-xlsx"]').closest('.ctx-wrap').style.display = 'none';
+      wrapMp4.style.display = 'block';
+
+      await wait(700);
+      fiMp4.classList.add('selected');
+      await wait(450);
+      ctx.classList.add('visible');
+      await wait(450);
+      sub.classList.add('visible');
+      await wait(550);
+      subMp3.classList.add('hl');
+      await wait(450);
+      ctx.classList.remove('visible'); sub.classList.remove('visible');
+      await wait(180);
+      fiMp4.classList.remove('selected');
+      fiMp4.classList.add('converting');
+      await wait(50);
+      pb.style.transition = 'width 2.0s cubic-bezier(0.4,0,0.2,1)';
+      pb.style.width = '75%';
+      await wait(2100);
+      pb.style.transition = 'width 0.25s ease';
+      pb.style.width = '100%';
+      await wait(280);
+      fiMp4.classList.remove('converting');
+      fiMp4.classList.add('done');
+      bg.textContent = '✓';
+      pb.style.transition = 'none'; pb.style.width = '0%';
+      fiMp3.style.display = 'flex';
+      await wait(30); fiMp3.classList.add('appear');
+      await wait(2200);
+      fiMp4.classList.remove('done'); bg.textContent = '';
+      fiMp3.classList.remove('appear');
+      await wait(380); fiMp3.style.display = 'none';
+      wrapMp4.style.display = 'none';
+      document.querySelector('[id="ctx-xlsx"]').closest('.ctx-wrap').style.display = 'block';
+      await wait(200);
+    }
+
+    async function loop() {
+      while (true) {
+        await xlsxScene();
+        await wait(600);
+        await mp4Scene();
+        await wait(600);
+      }
+    }
+
+    setTimeout(loop, 1000);
+  </script>
+</body>
+</html>

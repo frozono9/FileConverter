@@ -48,6 +48,32 @@ xcodebuild -project FileConverter.xcodeproj -scheme FileConverter -configuration
 ./scripts/create_dmg.sh ./build_release/Build/Products/Release/FileConverter.app FileConverter-Installer.dmg
 ```
 
+## Production DMG (Recommended for Website Distribution)
+
+For reliable installs from your own website, use Apple signing + notarization.
+
+1. Sign in to your Apple Developer account and install your `Developer ID Application` certificate in Keychain Access.
+2. Create a notarytool keychain profile once:
+
+```bash
+xcrun notarytool store-credentials FileConverterNotary \
+	--apple-id "YOUR_APPLE_ID" \
+	--team-id "YOUR_TEAM_ID" \
+	--password "APP_SPECIFIC_PASSWORD"
+```
+
+3. Run the release script:
+
+```bash
+export DEVELOPER_ID_APP_CERT="Developer ID Application: YOUR NAME (TEAMID)"
+export NOTARY_PROFILE="FileConverterNotary"
+./scripts/release_notarized_dmg.sh
+```
+
+Output: `FileConverter-Installer.dmg` signed, notarized, and stapled.
+
+This DMG opens with the normal drag-to-Applications flow, and on first launch the app shows onboarding automatically.
+
 ## Notes
 
 - Finder extension behavior depends on macOS extension state and signing.

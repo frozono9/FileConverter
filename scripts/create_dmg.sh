@@ -29,16 +29,14 @@ mkdir -p "$STAGE_DIR"
 cp -R "$APP_PATH" "$STAGE_DIR/$APP_NAME"
 ln -s /Applications "$STAGE_DIR/Applications"
 
-cat > "$STAGE_DIR/INSTRUCCIONES.txt" <<'EOF'
-FileConverter - Instalacion
+cat > "$STAGE_DIR/INSTALL.txt" <<'EOF'
+FileConverter Installation
 
-1) Arrastra FileConverter.app a la carpeta Applications.
-2) Abre la app desde Applications (no desde el DMG).
-3) En la primera apertura aparecera una guia para activar permisos.
+1. Drag FileConverter.app to Applications
+2. Open FileConverter from Applications (not from the DMG)
+3. On first launch, follow the setup guide
 
-Notas:
-- Si no se mueve a Applications, la extension de Finder puede no funcionar correctamente.
-- Al final del onboarding, la app reinicia Finder y se relanza automaticamente.
+That's it. The app handles everything else automatically.
 EOF
 
 SIZE_MB=$(du -sm "$STAGE_DIR" | awk '{print $1 + 40}')
