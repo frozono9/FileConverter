@@ -34,6 +34,9 @@ final class ConversionRouter {
         }
 
         if ["jpg", "jpeg", "png", "webp", "heic", "tiff", "bmp", "gif", "svg", "cr2", "nef", "arw"].contains(inputExt) {
+            if outputExt == "svg" && inputExt != "svg" {
+                return try await convertToVectorSVG(inputURL: inputURL, outputURL: outputURL, createCopy: createCopy)
+            }
             let magick = DependencyChecker.shared.toolPath("magick")
             _ = try await Shell.run([magick, inputURL.path, outputURL.path])
             return try finalizeOutput(inputURL: inputURL, outputURL: outputURL, createCopy: createCopy)
@@ -109,6 +112,23 @@ final class ConversionRouter {
             try FileManager.default.removeItem(at: inputURL)
         }
         return outputURL
+    }
+
+    private func convertToVectorSVG(inputURL: URL, outputURL: URL, createCopy: Bool) async throws -> URL {
+        let magick = DependencyChecker.shared.toolPath("magick")
+        let potrace = DependencyChecker.shared.toolPath("potrace")
+        let tempBMP = inputURL.deletingLastPathComponent().appendingPathComponent("temp_\(UUID().uuidString).bmp")
+        
+        // 1. Convert to BMP (potrace requires BMP or PBM)
+        _ = try await Shell.run([magick, inputURL.path, tempBMP.path])
+        
+        // 2. Vectorize with potrace
+        _ = try await Shell.run([potrace, "-s", tempBMP.path, "-o", outputURL.path])
+        
+        // 3. Cleanup temp file
+        try? FileManager.default.removeItem(at: tempBMP)
+        
+        return try finalizeOutput(inputURL: inputURL, outputURL: outputURL, createCopy: createCopy)
     }
 
     private func normalizeLibreOfficeOutput(expected: URL, inputURL: URL, outputExt: String) -> URL {

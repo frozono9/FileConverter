@@ -7,6 +7,7 @@ final class DependencyChecker {
         "ffmpeg": "brew install ffmpeg",
         "pandoc": "brew install pandoc",
         "magick": "brew install imagemagick",
+        "potrace": "brew install potrace",
         "python3": "brew install python",
         "soffice": "brew install --cask libreoffice"
     ]

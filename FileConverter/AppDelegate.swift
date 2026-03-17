@@ -7,16 +7,39 @@ extension Notification.Name {
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let extensionEnabledKey = "fc.extensionEnabled"
+    private let hasSeenOnboardingKey = "fc.hasSeenOnboarding"
     private let extensionSuiteName = "me.Latorre.Alex.FileConverter.FinderSync"
     private let sharedSuiteName = "group.me.Latorre.Alex.FileConverter"
     private var statusItem: NSStatusItem?
     private var preferencesWindowController: NSWindowController?
+    private var onboardingWindowController: NSWindowController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        AppRelocator.moveToApplicationsIfNeeded()
         NSApp.setActivationPolicy(.accessory)
         configureStatusItem()
         setExtensionEnabled(true)
         NotificationCenter.default.addObserver(self, selector: #selector(handleQuitRequestNotification), name: .fileConverterQuitRequested, object: nil)
+        
+        if !UserDefaults.standard.bool(forKey: hasSeenOnboardingKey) {
+            showOnboarding()
+        }
+    }
+
+    private func showOnboarding() {
+        if onboardingWindowController == nil {
+            let view = OnboardingView(isPresented: Binding(get: { true }, set: { [weak self] _ in self?.onboardingWindowController?.close() }))
+            let hosting = NSHostingController(rootView: view)
+            let window = NSWindow(contentViewController: hosting)
+            window.titleVisibility = .hidden
+            window.titlebarAppearsTransparent = true
+            window.styleMask = [.titled, .closable]
+            window.isMovableByWindowBackground = true
+            window.center()
+            onboardingWindowController = NSWindowController(window: window)
+        }
+        NSApp.activate(ignoringOtherApps: true)
+        onboardingWindowController?.showWindow(nil)
     }
 
     deinit {
