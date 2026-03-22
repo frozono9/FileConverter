@@ -1,5 +1,9 @@
 # FileConverter
 
+<img width="576" height="556" alt="Screenshot 2026-03-17 at 23 46 45" src="https://github.com/user-attachments/assets/5af82af4-f183-409d-a919-be6a72543376" />
+
+[https://frozono9.github.io/FileConverter/](url)
+
 FileConverter is a macOS menu bar app with a Finder extension that lets you convert files directly from the Finder right-click menu.
 
 ## Features
